@@ -28,7 +28,15 @@ const navItems: NavItem[] = [
     ],
   },
   { label: "球場", labelEn: "COURTS", href: "/courts" },
-  { label: "教練", labelEn: "COACH", href: "/coaches" },
+  {
+    label: "教練",
+    labelEn: "COACH",
+    href: "/coaches",
+    children: [
+      { label: "預約課程", href: "/coaches/booking" },
+      { label: "申請成為教練", href: "/coaches/apply" },
+    ],
+  },
   {
     label: "約球",
     labelEn: "MATCH",
