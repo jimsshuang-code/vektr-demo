@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VEKTR 後台架構規格書 v1.0</title>
+<style>
+  :root {
+    --primary: #1e3a8a;
+    --primary-dark: #0f172a;
+    --accent: #bef264;
+    --accent-dark: #a3e635;
+    --bg: #ffffff;
+    --bg-muted: #f8fafc;
+    --bg-dark: #0f172a;
+    --text: #0f172a;
+    --text-muted: #475569;
+    --border: #e2e8f0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+    color: var(--text);
+    background: var(--bg-muted);
+    line-height: 1.7;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 60px 40px; }
+  .doc-header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--bg-dark) 100%);
+    color: white;
+    padding: 60px 40px;
+    margin: -60px -40px 60px;
+    border-radius: 12px;
+  }
+  .doc-header h1 {
+    font-size: 2.5rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+  .doc-header .badge {
+    display: inline-block;
+    padding: 6px 14px;
+    background: var(--accent);
+    color: var(--text);
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+    margin-bottom: 24px;
+  }
+  .doc-header .meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-top: 32px;
+    padding-top: 32px;
+    border-top: 1px solid rgba(255,255,255,0.2);
+  }
+  .doc-header .meta div { font-size: 0.875rem; opacity: 0.9; }
+  .doc-header .meta strong { display: block; font-weight: 600; opacity: 0.7; margin-bottom: 4px; font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; }
+  h2 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin: 56px 0 20px;
+    padding-bottom: 12px;
+    border-bottom: 3px solid var(--primary);
+    letter-spacing: -0.01em;
+  }
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 32px 0 12px;
+    padding-left: 12px;
+    border-left: 4px solid var(--accent);
+  }
+  h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 20px 0 8px;
+  }
+  p { margin-bottom: 14px; color: var(--text-muted); }
+  ul, ol { margin: 12px 0 16px 24px; color: var(--text-muted); }
+  ul li, ol li { margin-bottom: 6px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    font-size: 0.875rem;
+  }
+  th {
+    background: var(--primary);
+    color: white;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: var(--bg-muted); }
+  code {
+    background: var(--bg-muted);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 0.85em;
+    color: var(--primary);
+  }
+  pre {
+    background: var(--bg-dark);
+    color: #cbd5e1;
+    padding: 20px 24px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 16px 0 24px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 0.8rem;
+    line-height: 1.6;
+  }
+  pre code { background: transparent; padding: 0; color: inherit; }
+  .module-card {
+    background: white;
+    padding: 28px;
+    border-radius: 10px;
+    margin: 24px 0;
+    border-left: 4px solid var(--primary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .module-card.phase2 { border-left-color: #8b5cf6; }
+  .module-card.phase3 { border-left-color: #ec4899; }
+  .module-card.phase4 { border-left-color: #f59e0b; }
+  .badge-inline {
+    display: inline-block;
+    padding: 3px 10px;
+    background: var(--accent);
+    color: var(--text);
+    font-size: 0.7rem;
+    font-weight: 700;
+    border-radius: 12px;
+    letter-spacing: 0.04em;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .badge-inline.p0 { background: #ef4444; color: white; }
+  .badge-inline.p1 { background: #f59e0b; color: white; }
+  .badge-inline.p2 { background: #64748b; color: white; }
+  .badge-inline.phase2 { background: #8b5cf6; color: white; }
+  .badge-inline.phase3 { background: #ec4899; color: white; }
+  .badge-inline.phase4 { background: #f59e0b; color: white; }
+  .wireframe {
+    background: #1e293b;
+    color: #cbd5e1;
+    padding: 24px;
+    border-radius: 8px;
+    margin: 16px 0;
+    font-family: "SF Mono", Monaco, monospace;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    overflow-x: auto;
+  }
+  .alert {
+    background: #fef3c7;
+    border-left: 4px solid #f59e0b;
+    padding: 16px 20px;
+    margin: 20px 0;
+    border-radius: 6px;
+    color: #92400e;
+    font-size: 0.875rem;
+  }
+  .alert.info {
+    background: #dbeafe;
+    border-left-color: #3b82f6;
+    color: #1e40af;
+  }
+  .alert strong { font-weight: 700; }
+  .doc-footer {
+    margin-top: 80px;
+    padding-top: 40px;
+    border-top: 2px solid var(--border);
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+  .toc {
+    background: white;
+    padding: 28px 32px;
+    border-radius: 10px;
+    margin-bottom: 40px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .toc h3 {
+    margin-top: 0;
+    padding-left: 0;
+    border-left: none;
+    font-size: 1rem;
+    color: var(--primary);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .toc ol { margin-left: 20px; }
+  .toc a { color: var(--text); text-decoration: none; font-size: 0.9rem; }
+  .toc a:hover { color: var(--primary); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="doc-header">
+  <span class="badge">內部規格書 · CONFIDENTIAL</span>
+  <h1>VEKTR 後台架構規格書</h1>
+  <p style="font-size: 1.1rem; opacity: 0.85;">Admin Architecture Specification</p>
+  <div class="meta">
+    <div><strong>版本</strong>v1.0</div>
+    <div><strong>日期</strong>2026-05-24</div>
+    <div><strong>狀態</strong>規劃中(SP-04 開發前)</div>
+    <div><strong>作者</strong>VEKTR 平台團隊</div>
+  </div>
+</div>
+
+<div class="toc">
+  <h3>目錄</h3>
+  <ol>
+    <li><a href="#s1">設計原則</a></li>
+    <li><a href="#s2">模組總覽(27 模組路線圖)</a></li>
+    <li><a href="#s3">權限分級(5 層 RBAC)</a></li>
+    <li><a href="#s4">MVP 9 模組詳細規格</a></li>
+    <li><a href="#s5">金流預留設計</a></li>
+    <li><a href="#s6">Phase 2-4 模組概要</a></li>
+    <li><a href="#s7">開發路線圖</a></li>
+    <li><a href="#s8">需專業確認事項</a></li>
+  </ol>
+</div>
+
+<h2 id="s1">1. 設計原則</h2>
+<ol>
+  <li><strong>第一階段不做金流(方案 C)</strong>,但 DB schema 預留金流相關欄位與 table,未來啟用無需重構</li>
+  <li><strong>權限分層</strong>:後台所有操作受權限控制,記錄完整 audit log</li>
+  <li><strong>可擴充性</strong>:模組分階段啟用,Phase 1-4 路線圖明確</li>
+  <li><strong>資料隔離</strong>:廣告主、教練、會員資料彼此隔離,僅 admin 可跨域查詢</li>
+  <li><strong>API 一致性</strong>:RESTful 設計,命名空間清楚(<code>/api/admin/*</code> 為後台專用)</li>
+</ol>
+
+<h2 id="s2">2. 模組總覽(27 模組路線圖)</h2>
+<table>
+  <thead>
+    <tr><th>#</th><th>模組</th><th>階段</th><th>優先級</th><th>路徑</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td>儀表板</td><td>MVP</td><td>P0</td><td><code>/admin</code></td></tr>
+    <tr><td>2</td><td>會員管理</td><td>MVP</td><td>P0</td><td><code>/admin/members</code></td></tr>
+    <tr><td>3</td><td>教練管理</td><td>MVP</td><td>P0</td><td><code>/admin/coaches</code></td></tr>
+    <tr><td>4</td><td>球場管理</td><td>MVP</td><td>P1</td><td><code>/admin/courts</code></td></tr>
+    <tr><td>5</td><td>商品管理</td><td>MVP</td><td>P1</td><td><code>/admin/products</code></td></tr>
+    <tr><td>6</td><td>內容管理</td><td>MVP</td><td>P1</td><td><code>/admin/content</code></td></tr>
+    <tr><td>7</td><td>訂單管理</td><td>MVP</td><td>P0</td><td><code>/admin/orders</code></td></tr>
+    <tr><td>8</td><td>權限管理</td><td>MVP</td><td>P0</td><td><code>/admin/permissions</code></td></tr>
+    <tr><td>9</td><td>系統設定</td><td>MVP</td><td>P1</td><td><code>/admin/settings</code></td></tr>
+    <tr><td>10</td><td>賽事管理</td><td>Phase 2</td><td>P2</td><td><code>/admin/events</code></td></tr>
+    <tr><td>11</td><td>課程審核</td><td>Phase 2</td><td>P1</td><td><code>/admin/lessons</code></td></tr>
+    <tr><td>12</td><td>預約糾紛</td><td>Phase 2</td><td>P2</td><td><code>/admin/disputes</code></td></tr>
+    <tr><td>13</td><td>評價管控</td><td>Phase 2</td><td>P2</td><td><code>/admin/reviews</code></td></tr>
+    <tr><td>14</td><td>通知中心</td><td>Phase 2</td><td>P1</td><td><code>/admin/notifications</code></td></tr>
+    <tr><td>15</td><td>行為分析</td><td>Phase 2</td><td>P2</td><td><code>/admin/analytics/behavior</code></td></tr>
+    <tr><td>16</td><td>轉換漏斗</td><td>Phase 2</td><td>P2</td><td><code>/admin/analytics/funnel</code></td></tr>
+    <tr><td>17</td><td>留存分析</td><td>Phase 2</td><td>P2</td><td><code>/admin/analytics/retention</code></td></tr>
+    <tr><td>18</td><td>優惠券系統</td><td>Phase 2</td><td>P2</td><td><code>/admin/coupons</code></td></tr>
+    <tr><td>19</td><td>推播管理</td><td>Phase 2</td><td>P2</td><td><code>/admin/push</code></td></tr>
+    <tr><td>20</td><td>金流交易</td><td>Phase 3</td><td>—</td><td><code>/admin/payments</code></td></tr>
+    <tr><td>21</td><td>分潤結算</td><td>Phase 3</td><td>—</td><td><code>/admin/commissions</code></td></tr>
+    <tr><td>22</td><td>財務報表</td><td>Phase 3</td><td>—</td><td><code>/admin/finance</code></td></tr>
+    <tr><td>23</td><td>金流通路</td><td>Phase 3</td><td>—</td><td><code>/admin/payment-gateways</code></td></tr>
+    <tr><td>24</td><td>廣告版位</td><td>Phase 4</td><td>—</td><td><code>/admin/ad-slots</code></td></tr>
+    <tr><td>25</td><td>廣告主管理</td><td>Phase 4</td><td>—</td><td><code>/admin/advertisers</code></td></tr>
+    <tr><td>26</td><td>廣告投放</td><td>Phase 2</td><td>P2</td><td><code>/admin/ads</code></td></tr>
+    <tr><td>27</td><td>A/B 測試</td><td>Phase 3</td><td>—</td><td><code>/admin/experiments</code></td></tr>
+  </tbody>
+</table>
+
+<h2 id="s3">3. 權限分級(5 層 RBAC)</h2>
+<table>
+  <thead><tr><th>角色</th><th>代號</th><th>權限範圍</th></tr></thead>
+  <tbody>
+    <tr><td>超級管理員</td><td><code>super_admin</code></td><td>所有模組讀寫,可建立 admin 帳號、改權限,可看 audit log</td></tr>
+    <tr><td>一般管理員</td><td><code>admin</code></td><td>除權限管理外,所有模組讀寫</td></tr>
+    <tr><td>編輯者</td><td><code>editor</code></td><td>內容管理、商品管理、CMS 寫入。其他模組唯讀</td></tr>
+    <tr><td>教練端</td><td><code>coach</code></td><td>僅看自己的課程、預約、學員、評價、分潤</td></tr>
+    <tr><td>觀察員</td><td><code>viewer</code></td><td>全站唯讀,適合外部審計、投資人 demo</td></tr>
+  </tbody>
+</table>
+<p><strong>操作日誌</strong>:所有寫入操作記錄 <code>who / when / what / before / after</code>,保留至少 6 個月。</p>
+
+<h2 id="s4">4. MVP 9 模組詳細規格</h2>
+
+<div class="module-card">
+  <h3>4.1 儀表板 Dashboard <span class="badge-inline p0">P0</span></h3>
+  <p><strong>路徑</strong>:<code>/admin</code></p>
+  <h4>功能清單</h4>
+  <ul>
+    <li>今日 / 本週 / 本月關鍵指標(DAU、新註冊、媒合成功、課程預約、商品點擊)</li>
+    <li>異常警示(系統錯誤、付款失敗、爭議單、教練申請待審)</li>
+    <li>快速連結到各模組</li>
+    <li>系統健康狀態(API 回應時間、DB 連線、儲存空間)</li>
+  </ul>
+  <h4>API</h4>
+  <ul>
+    <li><code>GET /api/admin/dashboard/metrics</code> - 取得指標</li>
+    <li><code>GET /api/admin/dashboard/alerts</code> - 取得警示</li>
+    <li><code>GET /api/admin/dashboard/health</code> - 系統健康</li>
+  </ul>
+  <h4>UI Wireframe</h4>
+  <div class="wireframe">
++--------------------------------------------------+
+| VEKTR Admin | Dashboard          [使用者選單]     |
++--------------------------------------------------+
+| [側邊欄]    | 今日數據                            |
+| Dashboard   |  +----+ +----+ +----+ +----+      |
+| Members     |  |DAU | |註冊| |媒合| |點擊|       |
+| Coaches     |  +----+ +----+ +----+ +----+      |
+| Courts      |                                    |
+| Products    | 異常警示                            |
+| Content     |  - 3 筆教練申請待審                  |
+| Orders      |  - 5 筆爭議單未處理                  |
+| Permissions |                                    |
+| Settings    | 系統健康                            |
+|             |  API: OK / DB: OK                  |
++--------------------------------------------------+
+  </div>
+</div>
+
+<div class="module-card">
+  <h3>4.2 會員管理 Members <span class="badge-inline p0">P0</span></h3>
+  <p><strong>路徑</strong>:<code>/admin/members</code></p>
+  <h4>功能清單</h4>
+  <ul>
+    <li>會員列表(篩選:註冊日期、DUPR 等級、地區、活躍度)</li>
+    <li>會員詳情(資料、約球紀錄、課程紀錄、訂單紀錄、評價、操作日誌)</li>
+    <li>帳號狀態變更(啟用 / 停權 / 刪除)</li>
+    <li>客服回覆與註記</li>
+    <li>CSV 匯出、批次操作(發信、加標籤)</li>
+  </ul>
+  <h4>DB Schema</h4>
+<pre><code>users (
+  id              BIGSERIAL PRIMARY KEY,
+  email           VARCHAR(255) UNIQUE NOT NULL,
+  phone           VARCHAR(20),
+  display_name    VARCHAR(100),
+  avatar_url      TEXT,
+  dupr_rating     DECIMAL(3,2),
+  gender          VARCHAR(10),
+  birth_year      INT,
+  city            VARCHAR(50),
+  status          VARCHAR(20) DEFAULT 'active',
+  email_verified  BOOLEAN DEFAULT false,
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  last_login_at   TIMESTAMPTZ
+);
+
+user_tags (
+  id          BIGSERIAL PRIMARY KEY,
+  user_id     BIGINT REFERENCES users(id),
+  tag         VARCHAR(50) NOT NULL,
+  created_by  BIGINT REFERENCES admin_users(id),
+  created_at  TIMESTAMPTZ DEFAULT now()
+);
+
+user_notes (
+  id          BIGSERIAL PRIMARY KEY,
+  user_id     BIGINT REFERENCES users(id),
+  admin_id    BIGINT REFERENCES admin_users(id),
+  note        TEXT NOT NULL,
+  created_at  TIMESTAMPTZ DEFAULT now()
+);</code></pre>
+</div>
+
+<div class="module-card">
+  <h3>4.3 教練管理 Coaches <span class="badge-inline p0">P0</span></h3>
+  <p><strong>路徑</strong>:<code>/admin/coaches</code></p>
+  <h4>功能清單</h4>
+  <ul>
+    <li>教練申請審核(待審核 / 已通過 / 已拒絕)</li>
+    <li>資歷驗證、DUPR 等級、證照管理</li>
+    <li>教練上下架控制</li>
+    <li>評價檢視(含檢舉處理)</li>
+    <li>績效指標(接課率、滿意度、續課率)</li>
+    <li>教練分潤紀錄(連結金流模組)</li>
+  </ul>
+  <h4>DB Schema</h4>
+<pre><code>coaches (
+  id              BIGSERIAL PRIMARY KEY,
+  user_id         BIGINT REFERENCES users(id),
+  status          VARCHAR(20) DEFAULT 'pending',
+  bio             TEXT,
+  specialties     TEXT[],
+  certifications  JSONB,
+  hourly_rate     INT,
+  available_cities VARCHAR(50)[],
+  approved_at     TIMESTAMPTZ,
+  approved_by     BIGINT REFERENCES admin_users(id),
+  rejected_reason TEXT,
+  created_at      TIMESTAMPTZ DEFAULT now()
+);</code></pre>
+</div>
+
+<div class="module-card">
+  <h3>4.4 球場管理 Courts <span class="badge-inline p1">P1</span></h3>
+  <p><strong>路徑</strong>:<code>/admin/courts</code></p>
+  <h4>功能清單</h4>
+  <ul>
+    <li>球場新增 / 編輯(地址、營業時間、收費、照片、設施)</li>
+    <li>預約規則設定</li>
+    <li>合作條件(獨家 / 一般、分潤比例)</li>
+    <li>球場使用熱度數據</li>
+  </ul>
+<pre><code>courts (
+  id              BIGSERIAL PRIMARY KEY,
+  name            VARCHAR(200) NOT NULL,
+  address         TEXT NOT NULL,
+  city            VARCHAR(50),
+  lat             DECIMAL(10,7),
+  lng             DECIMAL(10,7),
+  type            VARCHAR(20),
+  num_courts      INT,
+  hourly_rate     INT,
+  amenities       JSONB,
+  partner_status  VARCHAR(20),
+  commission_rate DECIMAL(5,2),
+  status          VARCHAR(20) DEFAULT 'active',
+  created_at      TIMESTAMPTZ DEFAULT now()
+);</code></pre>
+</div>
+
+<div class="module-card">
+  <h3>4.5 商品管理 Products <span class="badge-inline p1">P1</span></h3>
+  <p><strong>路徑</strong>:<code>/admin/products</code></p>
+  <h4>功能清單</h4>
+  <ul>
+    <li>商品列表(球拍 / 球類 / 鞋類 / 服飾 / 球袋 / 配件)</li>
+    <li>商品新增、編輯、上下架</li>
+    <li>授權通路連結(affiliate URL)</li>
+    <li>點擊與導購數據追蹤</li>
+  </ul>
+<pre><code>products (
+  id              BIGSERIAL PRIMARY KEY,
+  category        VARCHAR(50),
+  name            VARCHAR(200) NOT NULL,
+  brand           VARCHAR(100),
+  model           VARCHAR(100),
+  description     TEXT,
+  specs           JSONB,
+  images          TEXT[],
+  affiliate_url   TEXT,
+  affiliate_rate  DECIMAL(5,2),
+  status          VARCHAR(20) DEFAULT 'active',
+  created_at      TIMESTAMPTZ DEFAULT now()
+);</code></pre>
+</div>
+
+<div class="module-card">
+  <h3>4.6 內容管理 Content <span class="badge-inline p1">P1</span></h3>
+  <p><strong>路徑</strong>:<code>/admin/content</code></p>
+  <h4>功能清單</h4>
+  <ul>
+    <li>首頁 Banner 排程</li>
+    <li>學習中心文章(規則、技巧、賽事)</li>
+    <li>教學影片管理</li>
+    <li>站內公告</li>
+  </ul>
+<pre><code>articles (
+  id          BIGSERIAL PRIMARY KEY,
+  category    VARCHAR(50),
+  title       VARCHAR(300),
+  slug        VARCHAR(300) UNIQUE,
+  content     TEXT,
+  cover_image TEXT,
+  published   BOOLEAN DEFAULT false,
+  published_at TIMESTAMPTZ,
+  created_at  TIMESTAMPTZ DEFAULT now()
+);
+
+banners (
+  id          BIGSERIAL PRIMARY KEY,
+  position    VARCHAR(50),
+  image_url   TEXT,
+  link_url    TEXT,
+  start_at    TIMESTAMPTZ,
+  end_at      TIMESTAMPTZ,
+  priority    INT DEFAULT 0,
+  active      BOOLEAN DEFAULT true
+);</code></pre>
+</div>
+
+<div class="module-card">
+  <h3>4.7 訂單管理 Orders <span class="badge-inline p0">P0</span></h3>
+  <p><strong>路徑</strong>:<code>/admin/orders</code></p>
+  <div class="alert info">
+    <strong>第一階段不含金流</strong>:訂單僅為媒合紀錄,但 schema 預留 <code>amount</code>、<code>payment_id</code>、<code>paid_at</code> 等欄位。Phase 3 啟用金流時無需改 schema。
+  </div>
+  <h4>功能清單</h4>
+  <ul>
+    <li>訂單列表(商品諮詢 / 課程預約 / 球場預約 / 試打申請)</li>
+    <li>訂單狀態追蹤</li>
+    <li>爭議單管理</li>
+  </ul>
+<pre><code>orders (
+  id              BIGSERIAL PRIMARY KEY,
+  order_no        VARCHAR(50) UNIQUE,
+  user_id         BIGINT REFERENCES users(id),
+  type            VARCHAR(30),
+  status          VARCHAR(20) DEFAULT 'pending',
+  related_id      BIGINT,
+  metadata        JSONB,
+  -- 預留金流欄位(第一階段全 NULL)
+  amount          INT,
+  currency        VARCHAR(10) DEFAULT 'TWD',
+  payment_id      BIGINT,
+  paid_at         TIMESTAMPTZ,
+  created_at      TIMESTAMPTZ DEFAULT now()
+);</code></pre>
+</div>
+
+<div class="module-card">
+  <h3>4.8 權限管理 Permissions <span class="badge-inline p0">P0</span></h3>
+  <p><strong>路徑</strong>:<code>/admin/permissions</code></p>
+  <h4>功能清單</h4>
+  <ul>
+    <li>後台帳號管理</li>
+    <li>角色管理(5 層預設 + 自訂)</li>
+    <li>操作日誌(audit log)</li>
+    <li>API token 管理</li>
+  </ul>
+<pre><code>admin_users (
+  id              BIGSERIAL PRIMARY KEY,
+  email           VARCHAR(255) UNIQUE,
+  password_hash   TEXT,
+  display_name    VARCHAR(100),
+  role            VARCHAR(30),
+  status          VARCHAR(20) DEFAULT 'active',
+  last_login_at   TIMESTAMPTZ,
+  created_at      TIMESTAMPTZ DEFAULT now()
+);
+
+audit_logs (
+  id          BIGSERIAL PRIMARY KEY,
+  admin_id    BIGINT REFERENCES admin_users(id),
+  action      VARCHAR(100),
+  target_type VARCHAR(50),
+  target_id   BIGINT,
+  before      JSONB,
+  after       JSONB,
+  ip_address  INET,
+  created_at  TIMESTAMPTZ DEFAULT now()
+);</code></pre>
+</div>
+
+<div class="module-card">
+  <h3>4.9 系統設定 Settings <span class="badge-inline p1">P1</span></h3>
+  <p><strong>路徑</strong>:<code>/admin/settings</code></p>
+  <h4>功能清單</h4>
+  <ul>
+    <li>全域參數(站名、SEO、客服資訊)</li>
+    <li>第三方服務串接(GA4、Mixpanel)</li>
+    <li><strong>金流通路設定預留</strong>(Phase 3 啟用):綠界 / 藍新 / Stripe / LINE Pay</li>
+    <li>Email 範本</li>
+    <li>系統公告</li>
+  </ul>
+<pre><code>settings (
+  key         VARCHAR(100) PRIMARY KEY,
+  value       JSONB,
+  description TEXT,
+  updated_by  BIGINT REFERENCES admin_users(id),
+  updated_at  TIMESTAMPTZ DEFAULT now()
+);</code></pre>
+</div>
+
+<h2 id="s5">5. 金流預留設計(Phase 3 啟用)</h2>
+<div class="alert">
+  <strong>重要</strong>:雖然第一階段不啟用金流,以下 schema 在 SP-04 開發時直接建立,結構先存在但不開放對外功能。這樣設計避免未來啟用金流時的 schema migration 痛點。
+</div>
+<pre><code>payments (
+  id              BIGSERIAL PRIMARY KEY,
+  order_id        BIGINT REFERENCES orders(id),
+  user_id         BIGINT REFERENCES users(id),
+  amount          INT NOT NULL,
+  currency        VARCHAR(10) DEFAULT 'TWD',
+  gateway         VARCHAR(50),
+  gateway_txn_id  VARCHAR(200),
+  status          VARCHAR(20),
+  paid_at         TIMESTAMPTZ,
+  created_at      TIMESTAMPTZ DEFAULT now()
+);
+
+commissions (
+  id              BIGSERIAL PRIMARY KEY,
+  payment_id      BIGINT REFERENCES payments(id),
+  payee_type      VARCHAR(20),
+  payee_id        BIGINT,
+  amount          INT,
+  rate            DECIMAL(5,2),
+  settled         BOOLEAN DEFAULT false,
+  settled_at      TIMESTAMPTZ,
+  created_at      TIMESTAMPTZ DEFAULT now()
+);
+
+refunds (
+  id              BIGSERIAL PRIMARY KEY,
+  payment_id      BIGINT REFERENCES payments(id),
+  amount          INT,
+  reason          TEXT,
+  status          VARCHAR(20),
+  processed_by    BIGINT REFERENCES admin_users(id),
+  processed_at    TIMESTAMPTZ,
+  created_at      TIMESTAMPTZ DEFAULT now()
+);</code></pre>
+
+<h2 id="s6">6. Phase 2-4 模組概要</h2>
+
+<h3>Phase 2(MVP 之後 3-6 個月)</h3>
+<table>
+  <thead><tr><th>模組</th><th>路徑</th><th>主要功能</th></tr></thead>
+  <tbody>
+    <tr><td>賽事管理</td><td><code>/admin/events</code></td><td>賽事建立、報名審核、賽程表、結果登錄</td></tr>
+    <tr><td>課程審核</td><td><code>/admin/lessons</code></td><td>教練上架課程審核、課綱檢視</td></tr>
+    <tr><td>預約糾紛</td><td><code>/admin/disputes</code></td><td>爽約、爭議單處理流程</td></tr>
+    <tr><td>評價管控</td><td><code>/admin/reviews</code></td><td>不實評價檢舉、刪除惡意評價</td></tr>
+    <tr><td>通知中心</td><td><code>/admin/notifications</code></td><td>EDM、推播、客服訊息範本</td></tr>
+    <tr><td>行為分析</td><td><code>/admin/analytics/behavior</code></td><td>頁面熱圖、停留時間</td></tr>
+    <tr><td>轉換漏斗</td><td><code>/admin/analytics/funnel</code></td><td>註冊 → 約球 → 預約 → 購買</td></tr>
+    <tr><td>留存分析</td><td><code>/admin/analytics/retention</code></td><td>DAU/WAU/MAU、cohort retention</td></tr>
+    <tr><td>優惠券系統</td><td><code>/admin/coupons</code></td><td>折扣碼建立、發放、追蹤</td></tr>
+    <tr><td>推播管理</td><td><code>/admin/push</code></td><td>App push、LINE 通知、SMS</td></tr>
+    <tr><td>廣告投放</td><td><code>/admin/ads</code></td><td>自己投放 FB/Google Ads 的預算與 ROAS</td></tr>
+  </tbody>
+</table>
+
+<h3>Phase 3(商業化後,搭配金流啟用)</h3>
+<table>
+  <thead><tr><th>模組</th><th>路徑</th><th>主要功能</th></tr></thead>
+  <tbody>
+    <tr><td>金流交易</td><td><code>/admin/payments</code></td><td>交易列表、退款、爭議單</td></tr>
+    <tr><td>分潤結算</td><td><code>/admin/commissions</code></td><td>教練 / 球場月結報表</td></tr>
+    <tr><td>財務報表</td><td><code>/admin/finance</code></td><td>月營收、現金流、稅務</td></tr>
+    <tr><td>金流通路</td><td><code>/admin/payment-gateways</code></td><td>綠界 / 藍新 / Stripe 設定</td></tr>
+    <tr><td>A/B 測試</td><td><code>/admin/experiments</code></td><td>實驗組設定、版本對照</td></tr>
+  </tbody>
+</table>
+
+<h3>Phase 4(DAU 上萬後考慮)</h3>
+<table>
+  <thead><tr><th>模組</th><th>路徑</th><th>主要功能</th></tr></thead>
+  <tbody>
+    <tr><td>廣告版位</td><td><code>/admin/ad-slots</code></td><td>平台廣告版位管理</td></tr>
+    <tr><td>廣告主管理</td><td><code>/admin/advertisers</code></td><td>廣告主帳號、合約、計費</td></tr>
+  </tbody>
+</table>
+
+<h2 id="s7">7. 開發路線圖建議</h2>
+<table>
+  <thead><tr><th>階段</th><th>時程</th><th>主要任務</th></tr></thead>
+  <tbody>
+    <tr><td>SP-03 Stage 2</td><td>已完成</td><td>41 頁 placeholder + 後台架構文件</td></tr>
+    <tr><td>SP-04 Phase A</td><td>下一階段</td><td>後端 API、DB schema(含金流預留)、admin auth</td></tr>
+    <tr><td>SP-04 Phase B</td><td>之後</td><td>MVP 9 模組逐步上線</td></tr>
+    <tr><td>SP-05</td><td>商業化前</td><td>Phase 2 模組 + 真實金流評估</td></tr>
+    <tr><td>SP-06</td><td>商業化後</td><td>Phase 3 金流啟用 + Phase 4 廣告變現</td></tr>
+  </tbody>
+</table>
+
+<h2 id="s8">8. 需專業確認事項</h2>
+<div class="alert">
+  以下事項涉及法律、會計、稅務、資安專業領域,VEKTR 平台團隊不提供建議,需委託專業人士確認。
+</div>
+<ul>
+  <li><strong>法務</strong>:第三方支付串接合約、發票開立、跨境金流合規</li>
+  <li><strong>會計</strong>:教練分潤的勞務報酬扣繳、營業稅處理</li>
+  <li><strong>稅務</strong>:平台抽成收入認列、發票流向</li>
+  <li><strong>個資</strong>:會員資料保存期、刪除流程、個資法合規</li>
+  <li><strong>商標</strong>:VEKTR 商標申請進度(若改名需重新檢索)</li>
+  <li><strong>資安</strong>:後台滲透測試、API rate limit、密碼策略</li>
+</ul>
+
+<div class="doc-footer">
+  <p>VEKTR 後台架構規格書 v1.0 · 2026-05-24</p>
+  <p>關於時間科技股份有限公司 · CONFIDENTIAL — Internal Use Only</p>
+  <p style="margin-top: 12px; font-size: 0.75rem;">如需更新此文件,請建立新版本(如 v1.1),不要直接覆寫舊版,以利歷史比對。</p>
+</div>
+
+</div>
+</body>
+</html>
