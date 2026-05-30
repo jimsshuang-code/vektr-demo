@@ -42,3 +42,10 @@ next-env.d.ts
 
 # Header backups
 app/components/Header.tsx.bak.*
+.env.local
+.env*.local
+
+# data artifacts
+courts_seed.json
+courts_seed.csv
+court_hours_seed.json
