@@ -26,7 +26,7 @@ declare global {
   }
 }
 
-const DEFAULT_CENTER = { lat: 23.8, lng: 120.95 }; // 台灣中心,預設看全台
+const DEFAULT_CENTER = { lat: 25.033, lng: 121.5654 }; // 台北,抓不到定位時的預設
 
 export default function CourtsPage() {
   const mapDiv = useRef<HTMLDivElement>(null);
@@ -37,7 +37,7 @@ export default function CourtsPage() {
 
   const [ready, setReady] = useState(false);
   const [status, setStatus] = useState('載入地圖中…');
-  const [radius, setRadius] = useState(''); // 預設不限,顯示全台
+  const [radius, setRadius] = useState('8000'); // 預設 8 公里
   const [type, setType] = useState('');
   const [maxRate, setMaxRate] = useState('');
   const [tick, setTick] = useState(0);
@@ -99,7 +99,7 @@ export default function CourtsPage() {
 
     function init() {
       const g = window.google;
-      mapObj.current = new g.maps.Map(mapDiv.current, { center: DEFAULT_CENTER, zoom: 8 });
+      mapObj.current = new g.maps.Map(mapDiv.current, { center: DEFAULT_CENTER, zoom: 12 });
       infoWin.current = new g.maps.InfoWindow();
 
       // 容器高度穩定後強制重繪 tile,避免初始化時 div 高度為 0 導致底圖空白
@@ -108,7 +108,20 @@ export default function CourtsPage() {
         mapObj.current.setCenter(center.current);
       }, 300);
 
-      setReady(true);
+      // 取得使用者定位,以真實位置為中心做 8km 搜尋;失敗則用台北
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            center.current = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            mapObj.current.setCenter(center.current);
+            setReady(true);
+          },
+          () => setReady(true),
+          { timeout: 4000 }
+        );
+      } else {
+        setReady(true);
+      }
     }
 
     if (window.google?.maps) { init(); return; }
@@ -131,10 +144,10 @@ export default function CourtsPage() {
         <label className="text-sm opacity-80">
           半徑{' '}
           <select value={radius} onChange={(e) => setRadius(e.target.value)} className={sel}>
-            <option value="">不限</option>
             <option value="3000">3 km</option>
             <option value="8000">8 km</option>
             <option value="20000">20 km</option>
+            <option value="">不限</option>
           </select>
         </label>
         <label className="text-sm opacity-80">
