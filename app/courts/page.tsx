@@ -26,7 +26,7 @@ declare global {
   }
 }
 
-const DEFAULT_CENTER = { lat: 25.033, lng: 121.5654 }; // 台北
+const DEFAULT_CENTER = { lat: 23.8, lng: 120.95 }; // 台灣中心,預設看全台
 
 export default function CourtsPage() {
   const mapDiv = useRef<HTMLDivElement>(null);
@@ -37,7 +37,7 @@ export default function CourtsPage() {
 
   const [ready, setReady] = useState(false);
   const [status, setStatus] = useState('載入地圖中…');
-  const [radius, setRadius] = useState('');
+  const [radius, setRadius] = useState(''); // 預設不限,顯示全台
   const [type, setType] = useState('');
   const [maxRate, setMaxRate] = useState('');
   const [tick, setTick] = useState(0);
@@ -64,7 +64,8 @@ export default function CourtsPage() {
              <b style="font-size:14px">${c.name}</b><br>
              <span style="color:#555">${dist}${c.city || ''}${c.district || ''}</span><br>
              ${rating} · ${rate}<br>
-             <span style="color:#555">${c.type || '類型未定'} · ${verified}</span>
+             <span style="color:#555">${c.type || '類型未定'} · ${verified}</span><br>
+             <a href="/courts/detail/${c.id}" style="color:#0a7;font-weight:600;display:inline-block;margin-top:6px">查看詳情 →</a>
            </div>`
         );
         infoWin.current.open(mapObj.current, marker);
@@ -107,19 +108,7 @@ export default function CourtsPage() {
         mapObj.current.setCenter(center.current);
       }, 300);
 
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            center.current = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-            mapObj.current.setCenter(center.current);
-            setReady(true);
-          },
-          () => setReady(true),
-          { timeout: 4000 }
-        );
-      } else {
-        setReady(true);
-      }
+      setReady(true);
     }
 
     if (window.google?.maps) { init(); return; }
@@ -142,10 +131,10 @@ export default function CourtsPage() {
         <label className="text-sm opacity-80">
           半徑{' '}
           <select value={radius} onChange={(e) => setRadius(e.target.value)} className={sel}>
+            <option value="">不限</option>
             <option value="3000">3 km</option>
             <option value="8000">8 km</option>
             <option value="20000">20 km</option>
-            <option value="">不限</option>
           </select>
         </label>
         <label className="text-sm opacity-80">
