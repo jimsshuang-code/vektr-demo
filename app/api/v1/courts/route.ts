@@ -53,7 +53,7 @@ function buildQuery(sp: URLSearchParams) {
     FROM courts
     WHERE ${where.join(' AND ')}
     ORDER BY ${orderBy}
-    LIMIT 200;
+    LIMIT 1000;
   `;
   return { sql, params };
 }

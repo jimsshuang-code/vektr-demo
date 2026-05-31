@@ -37,7 +37,7 @@ export default function CourtsPage() {
 
   const [ready, setReady] = useState(false);
   const [status, setStatus] = useState('載入地圖中…');
-  const [radius, setRadius] = useState('8000');
+  const [radius, setRadius] = useState('');
   const [type, setType] = useState('');
   const [maxRate, setMaxRate] = useState('');
   const [tick, setTick] = useState(0);
@@ -98,7 +98,7 @@ export default function CourtsPage() {
 
     function init() {
       const g = window.google;
-      mapObj.current = new g.maps.Map(mapDiv.current, { center: DEFAULT_CENTER, zoom: 12 });
+      mapObj.current = new g.maps.Map(mapDiv.current, { center: DEFAULT_CENTER, zoom: 8 });
       infoWin.current = new g.maps.InfoWindow();
 
       // 容器高度穩定後強制重繪 tile,避免初始化時 div 高度為 0 導致底圖空白
