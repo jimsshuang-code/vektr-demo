@@ -1,0 +1,98 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions", "driverAdapters"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DIRECT_URL")
+  extensions = [postgis]
+}
+
+model Court {
+  id        BigInt   @id @default(autoincrement())
+  name      String   @db.VarChar(200)
+  address   String
+  city      String?  @db.VarChar(50)
+  district  String?  @db.VarChar(50)
+  lat       Decimal? @db.Decimal(10, 7)
+  lng       Decimal? @db.Decimal(10, 7)
+
+  geog Unsupported("geography(Point, 4326)")?
+
+  type       String? @db.VarChar(20)
+  numCourts  Int?    @map("num_courts")
+  hourlyRate Int?    @map("hourly_rate")
+  amenities  Json?
+  photos     String[]
+
+  phone       String?  @db.VarChar(20)
+  rating      Decimal? @db.Decimal(3, 2)
+  ratingCount Int      @default(0) @map("rating_count")
+
+  partnerStatus  String  @default("basic") @map("partner_status") @db.VarChar(20)
+  commissionRate Decimal @default(0) @map("commission_rate") @db.Decimal(5, 2)
+
+  dataSource    String  @default("admin") @map("data_source") @db.VarChar(30)
+  isVerified    Boolean @default(false) @map("is_verified")
+  googlePlaceId String? @unique @map("google_place_id") @db.VarChar(255)
+
+  status    String   @default("active") @db.VarChar(20)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  hours CourtHour[]
+
+  @@index([city])
+  @@index([partnerStatus])
+  @@index([googlePlaceId])
+  @@map("courts")
+}
+
+model CourtHour {
+  id        BigInt    @id @default(autoincrement())
+  courtId   BigInt?   @map("court_id")
+  dayOfWeek Int?      @map("day_of_week")
+  openTime  DateTime? @map("open_time") @db.Time(6)
+  closeTime DateTime? @map("close_time") @db.Time(6)
+
+  court Court? @relation(fields: [courtId], references: [id], onDelete: Cascade)
+
+  @@index([courtId])
+  @@map("court_hours")
+}
+
+model AdminUser {
+  id              BigInt    @id @default(autoincrement())
+  email           String    @unique @db.VarChar(255)
+  passwordHash    String    @map("password_hash")
+  displayName     String?   @map("display_name") @db.VarChar(100)
+  role            String    @default("admin") @db.VarChar(30)
+  status          String    @default("active") @db.VarChar(20)
+  twoFactorSecret String?   @map("two_factor_secret")
+  lastLoginAt     DateTime? @map("last_login_at") @db.Timestamptz(6)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  auditLogs AuditLog[]
+
+  @@map("admin_users")
+}
+
+model AuditLog {
+  id         BigInt   @id @default(autoincrement())
+  adminId    BigInt?  @map("admin_id")
+  action     String   @db.VarChar(100)
+  targetType String?  @map("target_type") @db.VarChar(50)
+  targetId   BigInt?  @map("target_id")
+  before     Json?
+  after      Json?
+  ipAddress  String?  @map("ip_address") @db.Inet
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  admin AdminUser? @relation(fields: [adminId], references: [id])
+
+  @@index([adminId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
