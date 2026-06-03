@@ -22,7 +22,7 @@ export default function MatchCreatePage() {
     const r=await fetch("/api/v1/matches",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({...f,court_id:f.court_id?Number(f.court_id):null,
         scheduled_at:new Date(f.scheduled_at).toISOString(),
-        duration_min:Number(f.duration_min),max_players:Number(f.max_players),
+        duration_min:f.duration_min?Number(f.duration_min):null,max_players:f.max_players?Number(f.max_players):null,
         dupr_min:f.dupr_min?Number(f.dupr_min):null,dupr_max:f.dupr_max?Number(f.dupr_max):null})});
     if(r.status===401){setErr("目前球友登入尚未接上(需設定 MATCH_DEV_USER_ID 或等 LINE 登入)。");setSubmitting(false);return;}
     if(!r.ok){setErr((await r.json()).error??"開房失敗");setSubmitting(false);return;}

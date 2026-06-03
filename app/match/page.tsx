@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
+import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
 
 type Match = {
@@ -12,6 +13,7 @@ const fmt = (iso:string) => { const d=new Date(iso); return `${d.getMonth()+1}/$
 const gameLabel:Record<string,string> = { singles:"單打", doubles:"雙打", mixed:"混雙" };
 
 export default function MatchPage() {
+  const { data:session } = useSession();
   const [list,setList]=useState<Match[]>([]); const [loading,setLoading]=useState(true);
   const [city,setCity]=useState(""); const [coords,setCoords]=useState<{lat:number;lng:number}|null>(null);
 
@@ -30,7 +32,16 @@ export default function MatchPage() {
       <div style={{maxWidth:640,margin:"0 auto",padding:"20px 16px 80px"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
           <h1 style={{fontSize:22,fontWeight:800,color:C.ink,margin:0}}>約球</h1>
-          <Link href="/match/create" style={{background:C.navy,color:"#fff",padding:"9px 16px",borderRadius:10,fontWeight:700,fontSize:14,textDecoration:"none"}}>+ 開房</Link>
+          <div style={{display:"flex",gap:8,alignItems:"center"}}>
+            {session?.user ? (
+              <span style={{fontSize:14,fontWeight:700,color:C.ink}}>👤 {session.user.name}</span>
+            ) : (
+              <button onClick={()=>signIn("line",{callbackUrl:"/match"})}
+                style={{background:"#00C300",color:"#fff",padding:"9px 14px",borderRadius:10,fontWeight:700,fontSize:14,border:"none",cursor:"pointer"}}>
+                使用 LINE 登入</button>
+            )}
+            <Link href="/match/create" style={{background:C.navy,color:"#fff",padding:"9px 16px",borderRadius:10,fontWeight:700,fontSize:14,textDecoration:"none"}}>+ 開房</Link>
+          </div>
         </div>
         <div style={{display:"flex",gap:8,marginBottom:16}}>
           <input value={city} onChange={e=>setCity(e.target.value)} placeholder="城市(如 台北市)"

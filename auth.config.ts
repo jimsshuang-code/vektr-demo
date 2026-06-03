@@ -10,7 +10,9 @@ export const authConfig = {
     jwt({ token, user }) {
       if (user) {
         token.role = user.role;
-        token.uid = user.id;
+        // 球友走 LINE:Auth.js 會把 user.id 覆蓋成隨機 UUID,改讀 profile 另存的 uid;
+        // admin(Credentials)沒有 uid,?? 退回 user.id,行為與原本相同。
+        token.uid = (user as { uid?: string }).uid ?? user.id;
       }
       return token;
     },
