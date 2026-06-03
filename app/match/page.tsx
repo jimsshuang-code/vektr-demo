@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import { signIn, useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
 type Match = {
@@ -34,7 +34,12 @@ export default function MatchPage() {
           <h1 style={{fontSize:22,fontWeight:800,color:C.ink,margin:0}}>約球</h1>
           <div style={{display:"flex",gap:8,alignItems:"center"}}>
             {session?.user ? (
-              <span style={{fontSize:14,fontWeight:700,color:C.ink}}>👤 {session.user.name}</span>
+              <>
+                <span style={{fontSize:14,fontWeight:700,color:C.ink}}>👤 {session.user.name}</span>
+                <button onClick={()=>signOut({callbackUrl:"/match"})}
+                  style={{background:"transparent",color:C.txt2,padding:"7px 11px",borderRadius:8,fontWeight:700,fontSize:13,border:`1px solid ${C.line}`,cursor:"pointer"}}>
+                  登出</button>
+              </>
             ) : (
               <button onClick={()=>signIn("line",{callbackUrl:"/match"})}
                 style={{background:"#00C300",color:"#fff",padding:"9px 14px",borderRadius:10,fontWeight:700,fontSize:14,border:"none",cursor:"pointer"}}>
