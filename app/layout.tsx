@@ -3,6 +3,7 @@ import { Inter, Noto_Serif_TC } from "next/font/google";
 import "./globals.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import Providers from "./components/Providers";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -44,9 +45,11 @@ export default function RootLayout({
       className={`${inter.variable} ${notoSerifTC.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <Providers>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </Providers>
       </body>
     </html>
   );

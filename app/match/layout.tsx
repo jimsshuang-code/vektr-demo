@@ -1,8 +1,5 @@
-"use client";
-// 約球子樹專屬 layout:只把 SessionProvider 包在 /match 底下,
-// 讓約球各頁能用 useSession 讀登入狀態。公開站與 admin 不受影響。
-import { SessionProvider } from "next-auth/react";
-
+// 約球子樹 layout。SessionProvider 已上移到 root 的 Providers(全站單一 session 來源),
+// 此處不再需要獨立 provider,避免 dual-session 衝突。
 export default function MatchLayout({ children }: { children: React.ReactNode }) {
-  return <SessionProvider>{children}</SessionProvider>;
+  return <>{children}</>;
 }

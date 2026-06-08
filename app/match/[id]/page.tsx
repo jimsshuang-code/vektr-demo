@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
+import ReportButton from "@/app/match/_components/ReportButton";
 
 const C = { navy:"#1e3a8a", ink:"#0f172a", lime:"#65a30d", limeBg:"#f7fee7", txt:"#1e293b", txt2:"#64748b", line:"#e2e8f0", bg:"#f8fafc" };
 const gameLabel:Record<string,string> = { singles:"單打", doubles:"雙打", mixed:"混雙" };
@@ -60,6 +61,9 @@ export default function MatchDetailPage() {
                 {p.host && <span style={{marginLeft:8,fontSize:11,fontWeight:800,color:C.lime,background:C.limeBg,padding:"2px 7px",borderRadius:10}}>房主</span>}
                 {p.dupr_rating && <span style={{marginLeft:8,fontSize:12,color:C.txt2}}>DUPR {p.dupr_rating}</span>}
               </div>
+              {v.authenticated && v.userId != null && Number(p.user_id) !== Number(v.userId) && (
+                <ReportButton reportedUserId={Number(p.user_id)} reportedName={p.name||"球友"} matchId={Number(m.id)} />
+              )}
             </div>))}
         </div>
 

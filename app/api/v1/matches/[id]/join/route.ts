@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withUser } from "@/app/lib/matchDb";
 import { requireUser } from "@/app/lib/currentUser";
+import { isSuspended } from "@/app/lib/reportsDb";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,6 +11,9 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
     const { id } = await params;
     const matchId = Number(id);
     const me = await requireUser();
+    if (await isSuspended(me.id)) {
+      return NextResponse.json({ error: "account_suspended" }, { status: 403 });
+    }
 
     const result = await withUser(me.id, async (c) => {
       await c.query("SELECT pg_advisory_xact_lock($1)", [matchId]);

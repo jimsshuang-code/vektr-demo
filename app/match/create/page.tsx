@@ -24,7 +24,8 @@ export default function MatchCreatePage() {
         scheduled_at:new Date(f.scheduled_at).toISOString(),
         duration_min:f.duration_min?Number(f.duration_min):null,max_players:f.max_players?Number(f.max_players):null,
         dupr_min:f.dupr_min?Number(f.dupr_min):null,dupr_max:f.dupr_max?Number(f.dupr_max):null})});
-    if(r.status===401){setErr("目前球友登入尚未接上(需設定 MATCH_DEV_USER_ID 或等 LINE 登入)。");setSubmitting(false);return;}
+    if(r.status===401){setErr("請先以 LINE 登入後再開團。");setSubmitting(false);return;}
+    if(r.status===403){setErr("您的帳號目前已被停權,無法開團。");setSubmitting(false);return;}
     if(!r.ok){setErr((await r.json()).error??"開房失敗");setSubmitting(false);return;}
     const j=await r.json(); router.push(`/match/${j.match.id}`);
   }

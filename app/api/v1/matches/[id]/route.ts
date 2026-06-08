@@ -55,6 +55,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
         participants: ps.rows,
         viewer: {
           authenticated: !!me,
+          userId: me?.id ?? null,
           isHost,
           isParticipant,
           canJoin: !!me && !isParticipant && room.status === "open" && currentPlayers < room.max_players,

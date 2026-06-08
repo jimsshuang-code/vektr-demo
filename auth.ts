@@ -8,6 +8,22 @@ import { authConfig } from "@/auth.config";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
+  callbacks: {
+    ...authConfig.callbacks,
+    // login-time 停權守衛(§6 決策 2)。只擋球友(LINE);admin(Credentials)不在 users 表,略過。
+    async signIn({ user, account }) {
+      if (account?.provider !== "line") return true;
+      const uid = (user as { uid?: string }).uid ?? user.id;
+      if (!uid) return true;
+      try {
+        const { rows } = await pool.query("SELECT user_is_suspended($1) AS s", [Number(uid)]);
+        if (rows[0]?.s === true) return "/suspended";
+      } catch {
+        // 查詢失敗時不阻擋登入,避免 DB 抖動把所有人鎖在外面(write-time 仍會擋)
+      }
+      return true;
+    },
+  },
   providers: [
     // 球友:LINE 登入(OIDC)。首登/回訪都呼叫 upsert_line_user(SECURITY DEFINER),
     // 用 LINE sub 對 users.line_user_id,拿回內部 users.id 與 role。

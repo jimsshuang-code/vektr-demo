@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withUser } from "@/app/lib/matchDb";
 import { getCurrentUser, requireUser } from "@/app/lib/currentUser";
+import { isSuspended } from "@/app/lib/reportsDb";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -53,6 +54,9 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const me = await requireUser();
+    if (await isSuspended(me.id)) {
+      return NextResponse.json({ error: "account_suspended" }, { status: 403 });
+    }
     const b = await req.json();
     if (!b.scheduled_at) {
       return NextResponse.json({ error: "scheduled_at required" }, { status: 400 });

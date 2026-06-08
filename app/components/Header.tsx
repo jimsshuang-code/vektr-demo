@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import HeaderAuth from "./HeaderAuth";
 
 type SubItem = { label: string; href: string };
 type NavItem = {
@@ -171,12 +172,7 @@ export default function Header() {
             <span>EN</span>
           </button>
 
-          <Link
-            href="/member"
-            className="hidden sm:inline-block text-sm font-medium text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors"
-          >
-            登入
-          </Link>
+          <HeaderAuth />
           <Link
             href="/match/find"
             className="hidden sm:inline-flex items-center px-4 py-2 text-sm font-bold text-[var(--color-text)] bg-[var(--color-accent)] hover:bg-[var(--color-accent-dark)] rounded-md transition-colors"
@@ -279,13 +275,7 @@ export default function Header() {
                 <span className="text-slate-300">/</span>
                 <span>EN</span>
               </button>
-              <Link
-                href="/member"
-                onClick={closeMobile}
-                className="text-sm font-medium text-[var(--color-text-muted)]"
-              >
-                登入
-              </Link>
+              <HeaderAuth mobile />
               <Link
                 href="/match/find"
                 onClick={closeMobile}
