@@ -18,7 +18,10 @@ const notoSerifTC = Noto_Serif_TC({
   display: "swap",
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://vektr-demo.vercel.app";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "VEKTR — Pickleball Platform",
     template: "%s | VEKTR",
@@ -31,6 +34,13 @@ export const metadata: Metadata = {
     description: "電商 × 社群 × 教學三位一體的 pickleball 生態系",
     type: "website",
     locale: "zh_TW",
+    siteName: "VEKTR",
+    url: SITE_URL,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "VEKTR — Pickleball Platform",
+    description: "電商 × 社群 × 教學三位一體的 pickleball 生態系",
   },
 };
 

@@ -27,7 +27,7 @@
 
 1. **球局生命週期自動化**(本批已實作):`006_match_lifecycle.sql` + `/api/cron/close-expired-matches` + `vercel.json` 每 15 分關閉過期房。**待辦:套用 006 到正式 DB、Vercel 設 `CRON_SECRET`。**
 2. **未上線模組導覽收斂**:Header/Footer 對 SHOP/COACH/LEARN/MEMBER 的連結,確認都導向 Coming Soon(已是 placeholder),避免使用者撞到半成品;或暫時從主導覽弱化。
-3. **SEO / 可被發現**:加 `app/sitemap.ts`、`app/robots.ts`、首頁與 /courts 的 metadata;OG 卡目前只有 match 有。市場缺口大,自然搜尋與分享是低成本獲客。
+3. **SEO / 可被發現**:✅ 已完成 — `app/robots.ts`、`app/sitemap.ts`(靜態頁 + active courts 動態)、`app/opengraph-image.tsx`(全站預設品牌卡)、root layout 加 `metadataBase` + twitter card。match 頁另有自己的動態 OG 卡。
 4. **錯誤監控**:接 Sentry 或 Vercel 內建,至少捕捉 API 500。
 5. **基本法遵**:Cookie 若加分析/行銷類,需同意橫幅(隱私政策已標待補)。
 
