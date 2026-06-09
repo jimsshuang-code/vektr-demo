@@ -21,11 +21,21 @@ export default function MatchDetailPage() {
     const r=await fetch(`/api/v1/matches/${id}/${path}`,{method:"POST",headers:{"Content-Type":"application/json"},body:body?JSON.stringify(body):undefined});
     const j=await r.json(); if(!r.ok)setMsg(j.error??"操作失敗"); setBusy(false); await load();
   }
-  function share(){ const ref=data?.viewer?.referralCode;
+  function inviteText(){ const ref=data?.viewer?.referralCode; const mm=data?.match;
     const url=`${window.location.origin}/match/${id}${ref?`?ref=${ref}`:""}`;
-    const text=`一起來打球!${data?.match?.title??""} ${url}`;
+    const title=mm?.title||"匹克球球局";
+    const need=mm?Math.max(0,(mm.max_players??0)-(mm.current_players??0)):0;
+    const when=mm?.scheduled_at?fmt(mm.scheduled_at):"";
+    const where=mm?.court_name||"自訂地點";
+    const lead=need>0?`「${title}」還缺 ${need} 人!`:`「${title}」`;
+    return {url,text:`${lead}${when} 在 ${where},一起來打球! ${url}`};
+  }
+  function share(){ const {url,text}=inviteText();
     if(navigator.share)navigator.share({title:"VEKTR 約球",text,url}).catch(()=>{});
     else {navigator.clipboard?.writeText(url);setMsg("已複製分享連結");}
+  }
+  function shareLine(){ const {text}=inviteText();
+    window.open(`https://line.me/R/msg/text/?${encodeURIComponent(text)}`,"_blank","noopener");
   }
 
   if(!data) return <P>載入中…</P>;
@@ -74,7 +84,8 @@ export default function MatchDetailPage() {
           {v.canRate && <RateRow busy={busy} onRate={(n:number)=>act("rate",{rating:n})}/>}
           {v.canLeave && !v.isHost && <Btn onClick={()=>act("leave")} disabled={busy}>退出球局</Btn>}
           {v.isHost && m.status!=="cancelled" && <Btn onClick={()=>{if(confirm("確定取消整場球局?"))act("leave");}} disabled={busy} danger>取消球局(房主)</Btn>}
-          <Btn onClick={share}>📤 分享揪人</Btn>
+          <button onClick={shareLine} style={{width:"100%",background:"#06C755",color:"#fff",border:"none",padding:"13px",borderRadius:12,fontSize:15.5,fontWeight:800,cursor:"pointer"}}>📲 用 LINE 揪人{(()=>{const mm=data?.match;const n=mm?Math.max(0,(mm.max_players??0)-(mm.current_players??0)):0;return n>0?`(還缺 ${n} 人)`:"";})()}</button>
+          <Btn onClick={share}>📤 其他分享方式</Btn>
           {!v.authenticated && <p style={{color:C.txt2,fontSize:13,textAlign:"center"}}>球友登入接上後即可加入(目前 demo 階段)</p>}
         </div>
       </div>
