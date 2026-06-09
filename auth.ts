@@ -2,9 +2,34 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import LINE from "next-auth/providers/line";
 import bcrypt from "bcryptjs";
+import { cookies } from "next/headers";
 import { prisma } from "@/app/lib/prisma";
 import { pool } from "@/app/lib/db";
 import { authConfig } from "@/auth.config";
+
+// 推薦碼歸因:讀 vektr_ref cookie 並把新球友綁到推薦人(first-touch、fail-open)。
+// bind_referral 只在 referred_by IS NULL 且非自我推薦時生效,故每次登入呼叫皆安全。
+async function bindReferralFromCookie(uid: string | number) {
+  try {
+    const jar = await cookies();
+    const ref = jar.get("vektr_ref")?.value;
+    if (!ref) return;
+    const { rows } = await pool.query("SELECT bind_referral($1,$2) AS bound", [
+      Number(uid),
+      ref,
+    ]);
+    // 綁定成功就清掉 cookie,避免之後重複處理(失敗則保留,下次再試)
+    if (rows[0]?.bound === true) {
+      try {
+        jar.delete("vektr_ref");
+      } catch {
+        /* 某些情境 cookie 不可寫,忽略;DB 端已綁定 */
+      }
+    }
+  } catch {
+    // 歸因為加值功能,任何失敗都不得影響登入
+  }
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -21,6 +46,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       } catch {
         // 查詢失敗時不阻擋登入,避免 DB 抖動把所有人鎖在外面(write-time 仍會擋)
       }
+      // 推薦碼歸因(fail-open,不影響登入結果)
+      await bindReferralFromCookie(uid);
       return true;
     },
   },
