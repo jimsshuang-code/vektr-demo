@@ -18,10 +18,16 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
     const result = await withUser(me.id, async (c) => {
       await c.query("SELECT pg_advisory_xact_lock($1)", [matchId]);
 
-      const m = await c.query("SELECT id, status, max_players FROM match_rooms WHERE id=$1", [matchId]);
+      const m = await c.query(
+        "SELECT id, status, max_players, scheduled_at, duration_min FROM match_rooms WHERE id=$1",
+        [matchId]
+      );
       if (m.rowCount === 0) return { code: 404, body: { error: "房間不存在或無法加入" } };
       const room = m.rows[0];
       if (room.status !== "open") return { code: 409, body: { error: "此球局目前無法加入" } };
+      // 過期房守衛:即使 status 仍為 open(每日 cron 尚未關閉),已過結束時間者一律不可加入。
+      const endMs = new Date(room.scheduled_at).getTime() + room.duration_min * 60000;
+      if (endMs < Date.now()) return { code: 409, body: { error: "此球局已結束" } };
 
       const cnt = await c.query(
         "SELECT count(*)::int AS n FROM match_participants WHERE match_id=$1 AND status='joined'", [matchId]);
