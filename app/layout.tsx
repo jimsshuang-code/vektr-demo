@@ -18,7 +18,7 @@ const notoSerifTC = Noto_Serif_TC({
   display: "swap",
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.vektr.com.tw";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://vektr.com.tw";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

@@ -174,7 +174,7 @@ export default function Header() {
 
           <HeaderAuth />
           <Link
-            href="/match/find"
+            href="/match"
             className="hidden sm:inline-flex items-center px-4 py-2 text-sm font-bold text-[var(--color-text)] bg-[var(--color-accent)] hover:bg-[var(--color-accent-dark)] rounded-md transition-colors"
           >
             開始約球
@@ -277,7 +277,7 @@ export default function Header() {
               </button>
               <HeaderAuth mobile />
               <Link
-                href="/match/find"
+                href="/match"
                 onClick={closeMobile}
                 className="inline-flex items-center justify-center px-4 py-3 text-sm font-bold text-[var(--color-text)] bg-[var(--color-accent)] hover:bg-[var(--color-accent-dark)] rounded-md transition-colors"
               >

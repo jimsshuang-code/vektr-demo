@@ -95,7 +95,7 @@ export default function PrivacyPolicyPage() {
                 ["公司名稱", <>關於時間科技股份有限公司(VEKTR 為其經營之品牌)</>],
                 ["統一編號", <>24718812</>],
                 ["登記地址", <>新北市汐止區新台五路一段 97 號 14 樓之 12</>],
-                ["官方網站", <>https://www.vektr.com.tw</>],
+                ["官方網站", <>https://vektr.com.tw</>],
                 ["個資保護窗口", <>service@abouttime-tech.com</>],
                 ["聯絡信箱", <>service@abouttime-tech.com</>],
               ]}

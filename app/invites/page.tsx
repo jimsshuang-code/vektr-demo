@@ -9,7 +9,7 @@ import InviteActionsClient from "./InviteActions";
 
 export const dynamic = "force-dynamic";
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://www.vektr.com.tw";
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://vektr.com.tw";
 const C = { navy: "#1e3a8a", ink: "#0f172a", lime: "#65a30d", limeBg: "#f7fee7", txt2: "#64748b", line: "#e2e8f0", bg: "#f8fafc" };
 
 type Invitee = { user_id: number; name: string | null; joined_at: string };
