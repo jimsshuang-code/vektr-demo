@@ -32,7 +32,7 @@ const footerSections = [
     title: "關於 ABOUT",
     links: [
       { label: "品牌故事", href: "/" },
-      { label: "聯絡我們", href: "mailto:jim@abouttime.com.tw" },
+      { label: "聯絡我們", href: "mailto:service@abouttime-tech.com" },
       { label: "服務條款", href: "/terms" },
       { label: "隱私政策", href: "/privacy" },
     ],
