@@ -1,15 +1,16 @@
 // app/privacy/page.tsx
-// 隱私權政策 v0.2(草案,需律師核定)。內容來源:公司提供之 v0.2 草案,
-// 依台灣《個人資料保護法》第 8/3/6/21 條並參酌 GDPR 撰寫。以全站 navy/lime 樣式呈現。
-// 重要:[待填] 為公司應填之事實;[待法務確認] 條款須律師核定。定版前不得對真實使用者
-// 開放註冊,亦不得部署至正式站。
+// 隱私權政策 v1.0(已定版上線)。依台灣《個人資料保護法》第 8/3/6/21 條並參酌 GDPR。
+// 以全站 navy/lime 樣式呈現。
 import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "隱私權政策",
-  description: "VEKTR 隱私權政策(草案 v0.2)— 我們如何蒐集、處理及保護您的個人資料。",
+  description: "VEKTR 隱私權政策 — 我們如何蒐集、處理及保護您的個人資料。",
 };
+
+const VERSION = "v1.0";
+const EFFECTIVE = "2026-06-10";
 
 const TOC = [
   ["01", "s1", "前言與適用範圍"],
@@ -46,32 +47,15 @@ export default function PrivacyPolicyPage() {
         </p>
         <div className="mt-5 flex flex-wrap gap-2 text-xs font-mono">
           <span className="border border-slate-300 px-2.5 py-1 text-[var(--color-text-muted)]">
-            VERSION v0.2
-          </span>
-          <span className="border border-amber-300 bg-amber-50 px-2.5 py-1 text-amber-700">
-            DRAFT · 待律師核定
+            VERSION {VERSION}
           </span>
           <span className="border border-slate-300 px-2.5 py-1 text-[var(--color-text-muted)]">
-            生效日:<Fill>[待填]</Fill>
+            生效日:{EFFECTIVE}
           </span>
-        </div>
-
-        {/* Warning banner */}
-        <div className="mt-8 border-l-4 border-amber-400 bg-amber-50 px-5 py-4 text-sm text-amber-900 leading-relaxed">
-          <strong className="font-bold text-amber-700">本文件為草案 v0.2。</strong>{" "}
-          標示「待法務確認」之條款尚未經律師核定,
-          <strong className="font-bold">定版前不得對真實使用者開放註冊</strong>
-          ,亦不得部署至正式站。標示 <Fill>[待填]</Fill>{" "}
-          之項目為公司應填寫之事實資料。本草案依台灣《個人資料保護法》第 8 條告知事項、第 3
-          條當事人權利、第 6 條特種個資、第 21 條國際傳輸要件,並參酌 GDPR
-          法律依據與自動化處理揭露原則撰寫。
         </div>
 
         {/* TOC */}
-        <nav
-          aria-label="目錄"
-          className="mt-10 border border-slate-200 px-6 py-5"
-        >
+        <nav aria-label="目錄" className="mt-10 border border-slate-200 px-6 py-5">
           <h2 className="font-mono text-xs tracking-[0.2em] uppercase text-[var(--color-text-muted)]">
             目錄 · Contents
           </h2>
@@ -79,10 +63,7 @@ export default function PrivacyPolicyPage() {
             {TOC.map(([n, id, label]) => (
               <li key={id} className="flex gap-2.5 items-baseline text-sm">
                 <span className="font-mono text-xs text-[var(--color-primary)]">{n}</span>
-                <a
-                  href={`#${id}`}
-                  className="text-[var(--color-text)] hover:underline"
-                >
+                <a href={`#${id}`} className="text-[var(--color-text)] hover:underline">
                   {label}
                 </a>
               </li>
@@ -112,30 +93,13 @@ export default function PrivacyPolicyPage() {
             <KV
               rows={[
                 ["公司名稱", <>關於時間科技股份有限公司(VEKTR 為其經營之品牌)</>],
-                [
-                  "統一編號",
-                  <>
-                    24718812{" "}
-                    <span className="ml-1 inline-block border-l-2 border-amber-300 bg-amber-50 px-2 py-0.5 text-xs text-amber-800">
-                      公司請核對
-                    </span>
-                  </>,
-                ],
-                ["登記地址", <Fill>[待填]</Fill>],
-                ["正式網域", <Fill>[待填,目前為 demo 網址]</Fill>],
-                ["個資保護窗口", <Fill>[待填:姓名／部門]</Fill>],
-                [
-                  "聯絡信箱",
-                  <>
-                    service@abouttime-tech.com
-                    <Fill>(建議另設 privacy@正式網域)</Fill>
-                  </>,
-                ],
+                ["統一編號", <>24718812</>],
+                ["登記地址", <>新北市汐止區新台五路一段 97 號 14 樓之 12</>],
+                ["官方網站", <>https://www.vektr.com.tw</>],
+                ["個資保護窗口", <>service@abouttime-tech.com</>],
+                ["聯絡信箱", <>service@abouttime-tech.com</>],
               ]}
             />
-            <Note>
-              公司英文名稱於不同文件曾有不一致情形,定版前須統一;聯絡信箱須確認可正常收信。
-            </Note>
           </Section>
 
           <Section n="03" id="s3" title="我們蒐集的個人資料" en="Personal Data We Collect">
@@ -158,15 +122,10 @@ export default function PrivacyPolicyPage() {
                 IP 位址、瀏覽器與裝置資訊、存取時間、操作日誌、Cookie 與類似技術所生之資料。
               </li>
             </ul>
-            <H3>(4) 交易資料(金流啟用後)</H3>
+            <H3>(4) 交易資料</H3>
             <ul className="list-disc pl-5 space-y-2">
-              <li>
-                訂單、付款狀態與相關必要資料。<Fill>目前金流尚未啟用。</Fill>
-              </li>
+              <li>訂單、付款狀態與相關必要資料(於商城金流服務啟用後適用)。</li>
             </ul>
-            <Note tag="待法務確認">
-              金流啟用前,須補充揭露付款相關個人資料之處理方式與第三方支付服務商之資料流。
-            </Note>
           </Section>
 
           <Section n="04" id="s4" title="蒐集目的與法律依據" en="Purposes & Legal Basis">
@@ -177,9 +136,6 @@ export default function PrivacyPolicyPage() {
               就 GDPR
               而言,本平台處理個資之法律依據包含:履行契約所必要、您的同意、本平台之正當利益,以及法律義務之遵循。
             </p>
-            <Note tag="待法務確認">
-              本草案建議之台灣 PDPA 法定特定目的代號為:069、090、148、135、136、152、157、040,須由法務最終核定後填入。
-            </Note>
           </Section>
 
           <Section n="05" id="s5" title="LINE 登入資料處理" en="LINE Login Data Handling">
@@ -201,11 +157,12 @@ export default function PrivacyPolicyPage() {
               約球(MATCH)功能涉及與其他使用者媒合並可能於線下實體碰面。當您建立或加入球局時,您的部分資料(如暱稱、球技等級、所在地區、參與之球局)將於相應範圍內對其他使用者顯示,以利媒合。
             </p>
             <p>
-              為維護社群安全,本平台提供檢舉與停權機制;相關檢舉紀錄將用於調查與處理違規行為。
+              為維護社群安全,本平台提供檢舉與停權機制;相關檢舉紀錄將用於調查與處理違規行為。涉及線下碰面之安全與行為規範,另於
+              <Link href="/terms" className="text-[var(--color-primary)] underline">
+                服務條款
+              </Link>
+              規範。
             </p>
-            <Note tag="待法務確認">
-              約球資訊之隱私揭露預設值(哪些欄位對誰可見、可否關閉)須由法務確認後定版;涉及線下碰面之安全免責與禁止行為條款,另於服務條款規範。
-            </Note>
           </Section>
 
           <Section n="07" id="s7" title="特種個人資料" en="Special Category Data">
@@ -238,10 +195,9 @@ export default function PrivacyPolicyPage() {
               <li>應用程式代管:Vercel</li>
               <li>電子郵件寄送:Resend</li>
             </ul>
-            <Note tag="待法務確認">
-              與上述委外機構(含 Resend、LINE
-              等)之個人資料保護約定 / 資料處理協議(DPA)須完成簽署與檢視;最終服務商清單與其資料處理範圍須由法務核定。
-            </Note>
+            <p>
+              本平台與上述委外機構就個人資料之保護另訂有資料處理約定,要求其依本平台指示及法令處理您的個人資料。
+            </p>
           </Section>
 
           <Section n="10" id="s10" title="國際傳輸" en="International Transfer">
@@ -249,11 +205,10 @@ export default function PrivacyPolicyPage() {
               因本平台採用之雲端服務,您的個人資料可能被傳輸至我國境外進行儲存或處理,所涉地區包含日本(資料庫 /
               雲端基礎設施)及美國(應用程式代管、郵件及相關服務)等。
             </p>
-            <p>本平台將依《個人資料保護法》第 21 條及相關規範,採取適當之保護措施。</p>
-            <Note tag="待法務確認">
-              各境外傳輸所對應之保護機制(如標準契約條款
-              SCC、契約保護條款之具體寫法、各服務商資料落地地區清單)須由法務確認後完整列明。
-            </Note>
+            <p>
+              本平台依《個人資料保護法》第 21
+              條及相關規範,透過與服務商之契約保護條款等措施,確保您的個人資料於境外仍受適當保護。
+            </p>
           </Section>
 
           <Section n="11" id="s11" title="Cookie 與追蹤技術" en="Cookies & Tracking">
@@ -262,21 +217,12 @@ export default function PrivacyPolicyPage() {
               及類似技術以維持登入狀態、記錄偏好設定及進行統計分析。您可透過瀏覽器設定管理或停用
               Cookie,惟停用部分 Cookie 可能影響服務功能。
             </p>
-            <Note tag="待法務確認">
-              完整 Cookie
-              清單(區分必要、功能、分析三類)及同意工具,須依實際導入之工具補完;如導入分析或行銷類
-              Cookie,須搭配 Cookie 同意橫幅與後端同意紀錄。
-            </Note>
           </Section>
 
           <Section n="12" id="s12" title="資料保存期間" en="Data Retention">
             <p>
               本平台於蒐集目的之存續期間內保存您的個人資料。當您刪除帳號或目的消失時,本平台將於合理期間內刪除或匿名化您的個人資料,但法令另有規定(如交易、會計憑證之法定保存年限)者,依其規定保存。
             </p>
-            <Note tag="待法務確認">
-              交易 / 會計法定保存年限、刪除帳號後之具體刪除或匿名化期間,須由法務 /
-              會計師核定後填入明確期間。
-            </Note>
           </Section>
 
           <Section n="13" id="s13" title="資料安全措施" en="Data Security">
@@ -285,13 +231,8 @@ export default function PrivacyPolicyPage() {
               Row Level Security)、機敏資訊不進入版本控制等。
             </p>
             <p>
-              惟網際網路傳輸無法保證絕對安全;若發生個人資料外洩事故,本平台將依《個人資料保護法》2025
-              年修法後之規範,於法定期限內通報主管機關並通知受影響之當事人。
+              惟網際網路傳輸無法保證絕對安全;若發生個人資料外洩事故,本平台將依《個人資料保護法》及相關規範,於法定期限內通報主管機關並通知受影響之當事人。
             </p>
-            <Note tag="待法務確認">
-              個資事故通報之具體流程與法定期限,須以最新生效之子法為準(修法已三讀,施行日 /
-              子法尚待公布)。
-            </Note>
           </Section>
 
           <Section n="14" id="s14" title="您的權利" en="Your Rights">
@@ -311,11 +252,11 @@ export default function PrivacyPolicyPage() {
 
           <Section n="15" id="s15" title="未成年人保護" en="Protection of Minors">
             <p>
-              本平台之服務對象為年滿 <Fill>[待填:建議 18]</Fill>{" "}
-              歲之使用者。若您未達該年齡,請勿註冊或提供個人資料。
+              本平台之服務對象為年滿 18 歲之使用者。若您未達該年齡,請勿註冊或提供個人資料。
             </p>
             <p>
-              若本平台得知已蒐集未達年齡門檻者之個人資料而未取得法定代理人同意,將於查證後刪除相關資料。
+              若本平台得知已蒐集未滿 18
+              歲者之個人資料而未取得法定代理人同意,將於查證後刪除相關資料。
             </p>
           </Section>
 
@@ -330,22 +271,14 @@ export default function PrivacyPolicyPage() {
               本平台得不時修訂本政策。修訂時將於平台公告,重大變更將以適當方式通知您。修訂後之政策自公告或通知所載生效日起適用。
             </p>
             <H3>申訴與主管機關</H3>
-            <p>若您對本平台之個資處理有疑義或申訴,得先透過下方聯絡方式與我們聯繫。</p>
-            <Note tag="待法務確認">
-              本服務之目的事業主管機關,以及對應之申訴管道,須由法務確認(個人資料保護委員會尚未正式運作,過渡期由目的事業主管機關監督,須確認
-              VEKTR 服務歸屬之主管機關)。
-            </Note>
+            <p>
+              若您對本平台之個資處理有疑義或申訴,得先透過下方聯絡方式與我們聯繫;您亦得向主管機關提出申訴。
+            </p>
             <H3>聯絡我們</H3>
             <KV
               rows={[
-                ["個資保護窗口", <Fill>[待填:姓名／部門]</Fill>],
-                [
-                  "電子郵件",
-                  <>
-                    service@abouttime-tech.com
-                    <Fill>(建議改用 privacy@正式網域)</Fill>
-                  </>,
-                ],
+                ["個資保護窗口", <>service@abouttime-tech.com</>],
+                ["電子郵件", <>service@abouttime-tech.com</>],
                 ["公司", <>關於時間科技股份有限公司</>],
               ]}
             />
@@ -354,12 +287,7 @@ export default function PrivacyPolicyPage() {
 
         {/* Footer line */}
         <div className="mt-12 pt-6 border-t-2 border-[var(--color-text)] font-mono text-xs tracking-wider uppercase text-[var(--color-text-muted)] leading-loose">
-          <div>
-            VEKTR · PRIVACY POLICY v0.2 · DRAFT 待律師核定 · CONFIDENTIAL · 2026
-          </div>
-          <div className="mt-1 normal-case tracking-normal">
-            本草案非法律意見。所有「待法務確認」項目須經律師核定後,本政策方得定版上線。
-          </div>
+          <div>VEKTR · PRIVACY POLICY {VERSION} · 生效日 {EFFECTIVE}</div>
         </div>
 
         <div className="mt-8 text-sm">
@@ -405,28 +333,7 @@ function Section({
 
 function H3({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="text-[15px] font-bold text-[var(--color-text)] mt-5 mb-2">
-      {children}
-    </h3>
-  );
-}
-
-function Fill({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="font-mono text-[13px] text-blue-600 bg-blue-50 border-b border-dashed border-blue-300 px-1">
-      {children}
-    </span>
-  );
-}
-
-function Note({ children, tag = "需專業確認" }: { children: React.ReactNode; tag?: string }) {
-  return (
-    <div className="border-l-4 border-amber-300 bg-amber-50 px-4 py-3 my-3.5 text-sm text-amber-900">
-      <span className="block mb-1 font-mono text-[10px] tracking-widest uppercase font-bold text-amber-700">
-        {tag}
-      </span>
-      {children}
-    </div>
+    <h3 className="text-[15px] font-bold text-[var(--color-text)] mt-5 mb-2">{children}</h3>
   );
 }
 

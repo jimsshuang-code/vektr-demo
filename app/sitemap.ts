@@ -5,7 +5,7 @@
 import type { MetadataRoute } from "next";
 import { pool } from "@/app/lib/db";
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://vektr-demo.vercel.app";
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://www.vektr.com.tw";
 
 export const dynamic = "force-dynamic";
 

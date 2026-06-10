@@ -38,4 +38,11 @@ psql "$DIRECT_URL" -f 007_referral.sql
 ## 注意 / 後續
 
 - MVP 採 first-touch 且 `referred_by IS NULL` 即可綁定;若日後要做**推薦獎勵**(發錢/點數),須收緊為「僅限註冊當下綁定」(可讓 `upsert_line_user` 回傳是否新建,或檢查 created_at),並加防濫用(同裝置/IP、上限)。
-- 目前未在 UI 顯示「我推薦了幾人」;後台成長報表為 P2 後續。
+- 球友端尚未顯示「我推薦了幾人」(P2 後續)。
+
+## 後台成長報表(已做)
+
+- `008_referral_admin.sql` — `admin_referral_stats` / `admin_referral_summary`(SECURITY DEFINER + assert_admin)。
+- `app/lib/referralsDb.ts` + `app/admin/referrals/page.tsx`(server component,`requireAdmin('members',{write})` → super_admin/admin)。
+- Admin 側欄新增「推薦成長」連結。顯示總計卡(已歸因球友 / 有效推薦人)+ 推薦排行榜(上限 500)。
+- 部署需套用 `007_referral.sql` 與 `008_referral_admin.sql`。

@@ -26,6 +26,9 @@ export default function MatchPage() {
   useEffect(()=>{load();},[load]);
   useEffect(()=>{ navigator.geolocation?.getCurrentPosition(
     p=>setCoords({lat:p.coords.latitude,lng:p.coords.longitude}),()=>{},{timeout:5000}); },[]);
+  // 推薦碼歸因:列表頁也接住 ?ref=,讓通用邀請連結(/match?ref=CODE)能歸因(與 /match/[id] 一致)
+  useEffect(()=>{ const ref=new URLSearchParams(window.location.search).get("ref");
+    if(ref)document.cookie=`vektr_ref=${ref};path=/;max-age=2592000`; },[]);
 
   return (
     <div style={{background:C.bg,minHeight:"100vh",fontFamily:"-apple-system,'Noto Sans TC',sans-serif"}}>

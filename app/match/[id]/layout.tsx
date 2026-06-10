@@ -5,7 +5,7 @@
 import type { Metadata } from "next";
 import { getPublicMatch, playersNeeded, formatWhen, GAME_LABEL } from "@/app/lib/matchPublic";
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://vektr-demo.vercel.app";
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://www.vektr.com.tw";
 
 export async function generateMetadata({
   params,
