@@ -1,13 +1,29 @@
-import PagePlaceholder from "@/app/components/PagePlaceholder";
+// app/coaches/page.tsx — 教練(預約後端未上線,精緻預覽 + 招募教練)
+import type { Metadata } from "next";
+import ModulePreview from "@/app/components/ModulePreview";
+
+export const metadata: Metadata = {
+  title: "教練媒合",
+  description: "VEKTR 教練媒合:認證教練、線上預約、私人與團體課、課後雙向評價。教練招募中。",
+};
 
 export default function CoachesPage() {
   return (
-    <PagePlaceholder
-      title="教練總覽"
+    <ModulePreview
+      title="教練媒合"
       titleEn="Coaches"
-      description="VEKTR 認證教練名單,涵蓋初學入門、技術精進、戰術養成、比賽指導與青少年訓練。每位教練提供完整資歷、專長、收費、課程時段與學員評價,協助你找到最合適的指導者。"
-      parentPath="/"
-      parentLabel="首頁"
+      badge="即將上線"
+      lead="找到適合你的匹克球教練 —— 從入門、技術精進到比賽指導。教練媒合與線上預約正在籌備中。若你是教練,歡迎現在就申請加入,成為平台首批合作教練。"
+      features={[
+        { h: "認證教練", d: "完整資歷、專長、收費與學員評價,公開透明。" },
+        { h: "線上預約", d: "查看可預約時段,線上送出預約需求。" },
+        { h: "私人 / 團體課", d: "一對一精修或小組揪團,彈性選擇。" },
+        { h: "課後互評", d: "雙向評價,維持教學品質與信任。" },
+      ]}
+      links={[
+        { href: "/coaches/apply", label: "申請成為教練", primary: true },
+        { href: "/learn", label: "先自學" },
+      ]}
     />
   );
 }
