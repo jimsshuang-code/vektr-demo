@@ -5,6 +5,7 @@ export type Role = "super_admin" | "admin" | "editor" | "coach" | "viewer";
 const WRITE_MATRIX: Record<string, Role[]> = {
   courts: ["super_admin", "admin", "editor"],
   members: ["super_admin", "admin"],
+  coaches: ["super_admin", "admin"],
   products: ["super_admin", "admin", "editor"],
   content: ["super_admin", "admin", "editor"],
   permissions: ["super_admin"],

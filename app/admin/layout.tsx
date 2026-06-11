@@ -11,7 +11,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <div style={{ fontWeight: 800, fontSize: 20, padding: "0 12px 20px", letterSpacing: 1 }}>VEKTR</div>
         <NavItem href="/admin" label="儀表板" enabled={false} />
         <NavItem href="/admin/members" label="會員管理" enabled={false} />
-        <NavItem href="/admin/coaches" label="教練管理" enabled={false} />
+        <NavItem href="/admin/coaches" label="教練管理" enabled />
         <NavItem href="/admin/courts" label="球場管理" enabled />
         <NavItem href="/admin/matches" label="約球檢舉" enabled />
         <NavItem href="/admin/referrals" label="推薦成長" enabled />
