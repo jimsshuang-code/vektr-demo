@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Inter, Noto_Serif_TC } from "next/font/google";
 import "./globals.css";
 import Header from "./components/Header";
@@ -62,6 +63,7 @@ export default function RootLayout({
           <main className="flex-1">{children}</main>
           <Footer />
         </Providers>
+        <Script src="/vektr-native.js" strategy="afterInteractive" />
       </body>
     </html>
   );

@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/app/lib/currentUser";
 import { getMyProfile, myMatchHistory, myPlayPartners } from "@/app/lib/memberDb";
 import { MemberShell, LoginPrompt } from "./_components/MemberUI";
 import AvatarUpload from "@/app/components/AvatarUpload";
+import DeleteAccount from "./DeleteAccount";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "會員中心" };
@@ -75,6 +76,9 @@ export default async function MemberPage() {
         <Tile href="/member/orders" title="我的訂單" desc="商城訂單(即將開賣)" />
         <Tile href="/member/coaching" title="教練紀錄" desc="課程預約(即將開放)" />
       </div>
+
+      {/* 帳號管理 */}
+      <DeleteAccount />
     </MemberShell>
   );
 }

@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import LINE from "next-auth/providers/line";
+import Apple from "next-auth/providers/apple";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { prisma } from "@/app/lib/prisma";
@@ -107,5 +108,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         };
       },
     }),
+    // Sign in with Apple(iOS App Store 條款 4.8 必須)。僅在設定 AUTH_APPLE_ID 後啟用。
+    ...(process.env.AUTH_APPLE_ID
+      ? [
+          Apple({
+            clientId: process.env.AUTH_APPLE_ID,
+            clientSecret: process.env.AUTH_APPLE_SECRET,
+            async profile(profile: { sub: string; email?: string; name?: string }) {
+              const { rows } = await pool.query(
+                "SELECT id, role FROM upsert_apple_user($1, $2, $3)",
+                [profile.sub, profile.name ?? null, profile.email ?? null]
+              );
+              const u = rows[0];
+              return {
+                id: String(u.id),
+                uid: String(u.id),
+                role: u.role,
+                name: profile.name ?? "Apple 球友",
+                email: profile.email,
+              };
+            },
+          }),
+        ]
+      : []),
   ],
 });

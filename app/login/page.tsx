@@ -11,13 +11,29 @@ function LoginInner() {
   const callbackUrl = params.get("callbackUrl") || "/match";
   const [agree, setAgree] = useState(false);
 
-  function login() {
+  async function login() {
     if (!agree) return;
     // 記錄同意(輕量;之後可改為伺服器端同意紀錄)
     try {
       document.cookie = `vektr_tos_agreed=1;path=/;max-age=31536000`;
     } catch {
       /* ignore */
+    }
+    // 在 Capacitor App 內:LINE 會擋 WebView 登入,改用系統瀏覽器開 OAuth(vektr-native.js 提供)
+    const w = window as unknown as {
+      Capacitor?: { isNativePlatform?: () => boolean };
+      vektrOpenAuth?: (url: string) => unknown;
+    };
+    if (w.Capacitor?.isNativePlatform?.() && typeof w.vektrOpenAuth === "function") {
+      try {
+        const res = await signIn("line", { callbackUrl, redirect: false });
+        if (res?.url) {
+          w.vektrOpenAuth(res.url);
+          return;
+        }
+      } catch {
+        /* 落回一般流程 */
+      }
     }
     signIn("line", { callbackUrl });
   }
@@ -51,6 +67,22 @@ function LoginInner() {
         >
           使用 LINE 登入
         </button>
+
+        {process.env.NEXT_PUBLIC_APPLE_ENABLED === "1" && (
+          <button
+            onClick={() => {
+              if (!agree) return;
+              try { document.cookie = `vektr_tos_agreed=1;path=/;max-age=31536000`; } catch {}
+              signIn("apple", { callbackUrl });
+            }}
+            disabled={!agree}
+            className="mt-3 w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-md font-bold text-white transition-opacity"
+            style={{ background: "#000", opacity: agree ? 1 : 0.45, cursor: agree ? "pointer" : "not-allowed" }}
+          >
+             使用 Apple 登入
+          </button>
+        )}
+
         {!agree && (
           <p className="mt-3 text-xs text-[var(--color-text-muted)]">請先勾選同意條款才能登入</p>
         )}

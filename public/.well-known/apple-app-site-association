@@ -1,0 +1,9 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [{
+      "appID": "REPLACE_TEAMID.tw.com.vektr.app",
+      "paths": ["*"]
+    }]
+  }
+}
