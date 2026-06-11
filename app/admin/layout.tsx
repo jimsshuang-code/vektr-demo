@@ -9,7 +9,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div style={{ minHeight: "100vh", background: "#fafbfc", fontFamily: "Inter, 'Noto Sans TC', sans-serif", color: "#0a1929", display: "flex" }}>
       <aside style={{ width: 220, background: "#ffffff", borderRight: "1px solid #e1e8ef", padding: "20px 12px", flexShrink: 0 }}>
         <div style={{ fontWeight: 800, fontSize: 20, padding: "0 12px 20px", letterSpacing: 1 }}>VEKTR</div>
-        <NavItem href="/admin" label="儀表板" enabled={false} />
+        <NavItem href="/admin" label="儀表板" enabled />
         <NavItem href="/admin/members" label="會員管理" enabled={false} />
         <NavItem href="/admin/coaches" label="教練管理" enabled />
         <NavItem href="/admin/courts" label="球場管理" enabled />
