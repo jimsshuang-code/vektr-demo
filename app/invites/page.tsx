@@ -27,8 +27,8 @@ export default async function InvitesPage() {
       <Shell>
         <div style={{ textAlign: "center", color: C.txt2, padding: "40px 0" }}>
           <p style={{ fontSize: 15, marginBottom: 16 }}>請先以 LINE 登入,才能看到你的邀請成果。</p>
-          <Link href="/match" style={{ color: C.navy, fontWeight: 700, textDecoration: "underline" }}>
-            前往約球登入
+          <Link href="/login?callbackUrl=/invites" style={{ color: C.navy, fontWeight: 700, textDecoration: "underline" }}>
+            前往登入
           </Link>
         </div>
       </Shell>

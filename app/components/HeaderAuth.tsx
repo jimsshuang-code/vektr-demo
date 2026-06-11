@@ -1,6 +1,8 @@
 "use client";
 // 全域 Header 的登入/登出區塊,依 useSession 反映實際狀態。
-import { useSession, signIn, signOut } from "next-auth/react";
+// 登入一律導向 /login(含同意勾選),不直接呼叫 signIn。
+import Link from "next/link";
+import { useSession, signOut } from "next-auth/react";
 
 export default function HeaderAuth({ mobile = false }: { mobile?: boolean }) {
   const { data: session, status } = useSession();
@@ -37,20 +39,20 @@ export default function HeaderAuth({ mobile = false }: { mobile?: boolean }) {
   // 未登入
   if (mobile) {
     return (
-      <button
-        onClick={() => signIn("line", { callbackUrl: "/match" })}
+      <Link
+        href="/login?callbackUrl=/match"
         className="self-start text-sm font-medium text-[var(--color-text-muted)]"
       >
         LINE 登入
-      </button>
+      </Link>
     );
   }
   return (
-    <button
-      onClick={() => signIn("line", { callbackUrl: "/match" })}
+    <Link
+      href="/login?callbackUrl=/match"
       className="hidden sm:inline-block text-sm font-medium text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors"
     >
       登入
-    </button>
+    </Link>
   );
 }

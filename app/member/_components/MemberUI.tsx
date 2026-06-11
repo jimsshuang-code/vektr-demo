@@ -30,7 +30,7 @@ export function LoginPrompt({ what }: { what: string }) {
     <div className="rounded-xl border border-slate-200 bg-white p-8 text-center">
       <p className="text-[var(--color-text-muted)]">請先以 LINE 登入,才能查看{what}。</p>
       <Link
-        href="/match"
+        href="/login?callbackUrl=/member"
         className="mt-4 inline-block px-5 py-2.5 rounded-md bg-[var(--color-primary)] text-white font-bold text-sm"
       >
         前往登入

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
 type Match = {
@@ -44,9 +44,9 @@ export default function MatchPage() {
                   登出</button>
               </>
             ) : (
-              <button onClick={()=>signIn("line",{callbackUrl:"/match"})}
-                style={{background:"#00C300",color:"#fff",padding:"9px 14px",borderRadius:10,fontWeight:700,fontSize:14,border:"none",cursor:"pointer"}}>
-                使用 LINE 登入</button>
+              <Link href="/login?callbackUrl=/match"
+                style={{background:"#00C300",color:"#fff",padding:"9px 14px",borderRadius:10,fontWeight:700,fontSize:14,border:"none",cursor:"pointer",textDecoration:"none"}}>
+                使用 LINE 登入</Link>
             )}
             <Link href="/match/create" style={{background:C.navy,color:"#fff",padding:"9px 16px",borderRadius:10,fontWeight:700,fontSize:14,textDecoration:"none"}}>+ 開房</Link>
           </div>
