@@ -21,6 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   let courtRoutes: MetadataRoute.Sitemap = [];
+  let cityRoutes: MetadataRoute.Sitemap = [];
   try {
     const r = await pool.query(
       `SELECT id, updated_at FROM courts WHERE status = 'active' ORDER BY id LIMIT 5000`
@@ -31,9 +32,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly" as const,
       priority: 0.6,
     }));
+    // 城市球場列表(SEO 落地頁)
+    const cr = await pool.query(
+      `SELECT DISTINCT city FROM courts WHERE status = 'active' AND city IS NOT NULL AND city <> '' LIMIT 200`
+    );
+    cityRoutes = cr.rows.map((c) => ({
+      url: `${SITE}/courts/cities/${encodeURIComponent(c.city)}`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    }));
   } catch {
     // DB 不可用時略過動態頁,至少回傳靜態頁
   }
 
-  return [...staticRoutes, ...courtRoutes];
+  return [...staticRoutes, ...courtRoutes, ...cityRoutes];
 }

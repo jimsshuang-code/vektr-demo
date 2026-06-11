@@ -1,13 +1,7 @@
-import PagePlaceholder from "@/app/components/PagePlaceholder";
+// app/courts/map/page.tsx
+// /courts 本身已是完整的 Google Maps 互動地圖,/courts/map 導向過去,避免重複維護兩份地圖。
+import { redirect } from "next/navigation";
 
 export default function CourtsMapPage() {
-  return (
-    <PagePlaceholder
-      title="球場地圖"
-      titleEn="Court Map"
-      description="互動式地圖呈現全台球場分布。依距離、場地類型、價位、開放時段篩選,直接從地圖點選查看球場詳情與預約資訊。"
-      parentPath="/courts"
-      parentLabel="球場總覽"
-    />
-  );
+  redirect("/courts");
 }
