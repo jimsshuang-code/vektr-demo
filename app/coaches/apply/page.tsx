@@ -2,9 +2,10 @@
 // app/coaches/apply/page.tsx — 申請成為教練(真表單,送出 → coaches status=pending)
 import { useState } from "react";
 import Link from "next/link";
+import AvatarUpload from "@/app/components/AvatarUpload";
 
 export default function CoachesApplyPage() {
-  const [f, setF] = useState({ name: "", contact: "", city: "", district: "", specialties: "", dupr_rating: "", hourly_rate: "", bio: "" });
+  const [f, setF] = useState({ name: "", contact: "", city: "", district: "", specialties: "", dupr_rating: "", hourly_rate: "", bio: "", avatar_url: "" });
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
   const [err, setErr] = useState("");
@@ -57,6 +58,14 @@ export default function CoachesApplyPage() {
               填寫以下資料送出申請。通過審核後即可上架課程、開放預約。標 * 為必填。
             </p>
             <form onSubmit={submit} className="mt-8 grid gap-4">
+              <Field label="教練照片">
+                <AvatarUpload
+                  endpoint="/api/v1/avatar"
+                  initialUrl={f.avatar_url || null}
+                  label="上傳照片"
+                  onUploaded={(url) => setF((s) => ({ ...s, avatar_url: url }))}
+                />
+              </Field>
               <Field label="姓名 *"><input className={input} value={f.name} onChange={set("name")} required maxLength={100} /></Field>
               <Field label="聯絡方式(LINE / 電話 / Email)*"><input className={input} value={f.contact} onChange={set("contact")} required maxLength={200} /></Field>
               <div className="grid grid-cols-2 gap-4">

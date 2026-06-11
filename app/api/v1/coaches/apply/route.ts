@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
       specialties: b.specialties ? String(b.specialties).slice(0, 500) : null,
       dupr_rating: Number.isFinite(dupr as number) ? dupr : null,
       hourly_rate: Number.isFinite(rate as number) ? rate : null,
+      avatar_url: b.avatar_url ? String(b.avatar_url).slice(0, 500) : null,
     });
     return NextResponse.json({ ok: true, id }, { status: 201 });
   } catch (e) {

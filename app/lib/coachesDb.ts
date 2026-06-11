@@ -88,10 +88,11 @@ export async function createCoachApplication(d: {
   specialties?: string | null;
   dupr_rating?: number | null;
   hourly_rate?: number | null;
+  avatar_url?: string | null;
 }): Promise<number> {
   const r = await pool.query(
-    `INSERT INTO coaches (name, contact, bio, city, district, specialties, dupr_rating, hourly_rate, status)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'pending') RETURNING id`,
+    `INSERT INTO coaches (name, contact, bio, city, district, specialties, dupr_rating, hourly_rate, avatar_url, status)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'pending') RETURNING id`,
     [
       d.name,
       d.contact,
@@ -101,6 +102,7 @@ export async function createCoachApplication(d: {
       d.specialties ?? null,
       d.dupr_rating ?? null,
       d.hourly_rate ?? null,
+      d.avatar_url ?? null,
     ]
   );
   return Number(r.rows[0].id);
