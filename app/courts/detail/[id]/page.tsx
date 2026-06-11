@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import ReserveForm from './ReserveForm';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -65,6 +66,15 @@ export default async function CourtDetailPage({ params }: Props) {
           </ul>
         </div>
       )}
+
+      {/* 線上預約 */}
+      <div style={{ marginTop: 28, background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 20 }}>
+        <h2 style={{ fontSize: 18, margin: '0 0 4px' }}>線上預約</h2>
+        <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 14px' }}>
+          填寫日期與時段送出,球場確認後預約成立。費用現場支付。
+        </p>
+        <ReserveForm courtId={Number(c.id)} courtName={c.name} />
+      </div>
 
       <p style={{ marginTop: 24, fontSize: 13, color: '#999' }}>
         資料持續整理中,部分欄位待場主認領後補齊,僅供參考。

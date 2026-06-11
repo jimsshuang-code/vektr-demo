@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { requireAdmin } from "@/app/lib/rbac";
 import { adminListCoaches, adminListBookings } from "@/app/lib/coachesDb";
+import { pendingReservationCount } from "@/app/lib/reservationsDb";
 
 export const dynamic = "force-dynamic";
 
@@ -16,16 +17,23 @@ export default async function AdminPage() {
   // 待處理摘要(失敗不影響頁面)
   let pendingCoaches = 0;
   let newBookings = 0;
+  let pendingReservations = 0;
   try {
-    const [coaches, bookings] = await Promise.all([adminListCoaches("pending"), adminListBookings()]);
+    const [coaches, bookings, resv] = await Promise.all([
+      adminListCoaches("pending"),
+      adminListBookings(),
+      pendingReservationCount(),
+    ]);
     pendingCoaches = coaches.length;
     newBookings = bookings.filter((b) => b.status === "new").length;
+    pendingReservations = resv;
   } catch {
     /* ignore */
   }
 
   const cards = [
     { href: "/admin/courts", title: "球場管理", desc: "新增、編輯、認領與上下架球場" },
+    { href: "/admin/reservations", title: "球場預約", desc: "代球場端接受 / 婉拒預約", badge: pendingReservations },
     { href: "/admin/matches", title: "約球檢舉", desc: "檢舉審核與球友停權管理" },
     { href: "/admin/coaches", title: "教練管理", desc: "教練申請審核與學員預約", badge: pendingCoaches + newBookings },
     { href: "/admin/referrals", title: "推薦成長", desc: "推薦碼歸因排行與成長數據" },
@@ -40,10 +48,11 @@ export default async function AdminPage() {
         歡迎,{guard.email || "管理員"}({guard.role})
       </p>
 
-      {(pendingCoaches > 0 || newBookings > 0) && (
+      {(pendingCoaches > 0 || newBookings > 0 || pendingReservations > 0) && (
         <div style={{ display: "flex", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
+          {pendingReservations > 0 && <Pill text={`${pendingReservations} 筆球場預約待確認`} href="/admin/reservations" />}
           {pendingCoaches > 0 && <Pill text={`${pendingCoaches} 位教練待審核`} href="/admin/coaches" />}
-          {newBookings > 0 && <Pill text={`${newBookings} 筆新預約需求`} href="/admin/coaches" />}
+          {newBookings > 0 && <Pill text={`${newBookings} 筆教練預約需求`} href="/admin/coaches" />}
         </div>
       )}
 
