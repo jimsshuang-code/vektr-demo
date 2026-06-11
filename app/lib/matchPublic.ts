@@ -61,6 +61,49 @@ export function playersNeeded(m: PublicMatch): number {
   return Math.max(0, m.maxPlayers - m.currentPlayers);
 }
 
+export type UpcomingMatch = {
+  id: number;
+  title: string | null;
+  scheduledAt: string;
+  gameType: string;
+  maxPlayers: number;
+  currentPlayers: number;
+  courtName: string | null;
+  city: string | null;
+};
+
+// 首頁「即時熱門揪球」用:即將到來、仍開放的球局。匿名 RLS 連線。
+export const listUpcomingMatches = cache(async (limit = 4): Promise<UpcomingMatch[]> => {
+  try {
+    return await withUser(null, async (c) => {
+      const r = await c.query(
+        `SELECT m.id, m.title, m.scheduled_at, m.game_type, m.max_players,
+                co.name AS court_name, co.city,
+                (SELECT count(*)::int FROM match_participants mp
+                  WHERE mp.match_id = m.id AND mp.status = 'joined') AS current_players
+           FROM match_rooms m
+           LEFT JOIN courts co ON co.id = m.court_id
+          WHERE m.status = 'open' AND m.scheduled_at >= now()
+          ORDER BY m.scheduled_at ASC
+          LIMIT $1`,
+        [limit]
+      );
+      return r.rows.map((m) => ({
+        id: Number(m.id),
+        title: m.title ?? null,
+        scheduledAt: new Date(m.scheduled_at).toISOString(),
+        gameType: m.game_type,
+        maxPlayers: Number(m.max_players),
+        currentPlayers: Number(m.current_players),
+        courtName: m.court_name ?? null,
+        city: m.city ?? null,
+      }));
+    });
+  } catch {
+    return [];
+  }
+});
+
 export function formatWhen(iso: string): string {
   const d = new Date(iso);
   const wd = "日一二三四五六"[d.getDay()];

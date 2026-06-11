@@ -1,4 +1,8 @@
 import Link from "next/link";
+import UpcomingMatches from "@/app/components/UpcomingMatches";
+
+// 首頁含「即時揪球」區塊,每 60 秒重新生成(CDN 快取 + 內容新鮮)
+export const revalidate = 60;
 
 const stats = [
   { value: "6", label: "功能模組", labelEn: "MODULES" },
@@ -166,6 +170,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ========== LIVE 即時揪球 ========== */}
+      <UpcomingMatches />
 
       {/* ========== MODULES ========== */}
       <section className="bg-white py-20 md:py-28">
