@@ -1,15 +1,9 @@
 import Link from "next/link";
 import UpcomingMatches from "@/app/components/UpcomingMatches";
+import HomeStats from "@/app/components/HomeStats";
 
 // 首頁含「即時揪球」區塊,每 60 秒重新生成(CDN 快取 + 內容新鮮)
 export const revalidate = 60;
-
-const stats = [
-  { value: "6", label: "功能模組", labelEn: "MODULES" },
-  { value: "4", label: "使用者角色", labelEn: "ROLES" },
-  { value: "25+", label: "服務頁面", labelEn: "PAGES" },
-  { value: "∞", label: "成長潛力", labelEn: "POTENTIAL" },
-];
 
 const modules = [
   {
@@ -150,26 +144,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ========== STATS ========== */}
-      <section className="bg-[var(--color-primary)] text-white">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat) => (
-              <div key={stat.labelEn} className="text-center">
-                <div className="text-5xl md:text-6xl font-black mb-2 text-[var(--color-accent)]">
-                  {stat.value}
-                </div>
-                <div className="text-sm font-bold tracking-widest opacity-80">
-                  {stat.labelEn}
-                </div>
-                <div className="text-sm font-serif-tc mt-1 opacity-70">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* ========== STATS(真實成長數據)========== */}
+      <HomeStats />
 
       {/* ========== LIVE 即時揪球 ========== */}
       <UpcomingMatches />
