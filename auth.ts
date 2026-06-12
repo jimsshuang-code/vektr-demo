@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import LINE from "next-auth/providers/line";
 import Apple from "next-auth/providers/apple";
+import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { prisma } from "@/app/lib/prisma";
@@ -36,9 +37,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   callbacks: {
     ...authConfig.callbacks,
-    // login-time 停權守衛(§6 決策 2)。只擋球友(LINE);admin(Credentials)不在 users 表,略過。
+    // login-time 停權守衛(§6 決策 2)。擋所有球友 provider;admin(credentials)不在 users 表,略過。
     async signIn({ user, account }) {
-      if (account?.provider !== "line") return true;
+      const p = account?.provider;
+      if (p !== "line" && p !== "apple" && p !== "google" && p !== "user-login") return true;
       const uid = (user as { uid?: string }).uid ?? user.id;
       if (!uid) return true;
       try {
@@ -108,6 +110,69 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         };
       },
     }),
+    // 球友:Email + 密碼登入(id 與 admin 的 "credentials" 區隔)。
+    // 查 users 表的密碼帳號,bcrypt 驗證;回 uid 供 jwt/session callback 烤進 session.user.id。
+    Credentials({
+      id: "user-login",
+      name: "Email",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      authorize: async (creds) => {
+        const email = String(creds?.email ?? "").trim().toLowerCase();
+        const password = String(creds?.password ?? "");
+        if (!email || !password) return null;
+        const { rows } = await pool.query(
+          "SELECT id, role, password_hash FROM find_user_for_login($1)",
+          [email]
+        );
+        const u = rows[0];
+        if (!u?.password_hash) return null;
+        const ok = await bcrypt.compare(password, u.password_hash);
+        if (!ok) return null;
+        return {
+          id: String(u.id),
+          uid: String(u.id),
+          role: u.role,
+          email,
+        };
+      },
+    }),
+    // 球友:Google 登入(Gmail)。僅在設定 AUTH_GOOGLE_ID 後啟用。
+    ...(process.env.AUTH_GOOGLE_ID
+      ? [
+          Google({
+            clientId: process.env.AUTH_GOOGLE_ID,
+            clientSecret: process.env.AUTH_GOOGLE_SECRET,
+            async profile(profile: {
+              sub: string;
+              name?: string;
+              email?: string;
+              picture?: string;
+            }) {
+              const { rows } = await pool.query(
+                "SELECT id, role FROM upsert_google_user($1, $2, $3, $4)",
+                [
+                  profile.sub,
+                  profile.name ?? null,
+                  profile.email ?? null,
+                  profile.picture ?? null,
+                ]
+              );
+              const u = rows[0];
+              return {
+                id: String(u.id),
+                uid: String(u.id),
+                role: u.role,
+                name: profile.name ?? "Google 球友",
+                email: profile.email,
+                image: profile.picture,
+              };
+            },
+          }),
+        ]
+      : []),
     // Sign in with Apple(iOS App Store 條款 4.8 必須)。僅在設定 AUTH_APPLE_ID 後啟用。
     ...(process.env.AUTH_APPLE_ID
       ? [
