@@ -199,15 +199,22 @@ function LoginInner() {
           {busy ? "處理中…" : mode === "register" ? "註冊並登入" : "Email 登入"}
         </button>
 
-        <button
-          onClick={() => {
-            setErr("");
-            setMode((m) => (m === "login" ? "register" : "login"));
-          }}
-          className="mt-3 text-sm text-[var(--color-primary)] underline"
-        >
-          {mode === "login" ? "還沒有帳號?點此用 Email 註冊" : "已有帳號?改用 Email 登入"}
-        </button>
+        <div className="mt-3 flex items-center justify-center gap-4">
+          <button
+            onClick={() => {
+              setErr("");
+              setMode((m) => (m === "login" ? "register" : "login"));
+            }}
+            className="text-sm text-[var(--color-primary)] underline"
+          >
+            {mode === "login" ? "還沒有帳號?用 Email 註冊" : "已有帳號?改用 Email 登入"}
+          </button>
+          {mode === "login" && (
+            <Link href="/forgot" className="text-sm text-[var(--color-text-muted)] underline">
+              忘記密碼?
+            </Link>
+          )}
+        </div>
 
         {!agree && (
           <p className="mt-3 text-xs text-[var(--color-text-muted)]">請先勾選同意條款才能登入</p>
