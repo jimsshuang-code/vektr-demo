@@ -46,12 +46,20 @@ export default function MatchCreatePage() {
         </select>
         <label style={label}>時間 *</label>
         <input style={input} type="datetime-local" value={f.scheduled_at} onChange={e=>set("scheduled_at",e.target.value)}/>
-        <div style={{display:"flex",gap:12}}>
-          <div style={{flex:1}}><label style={label}>時長(分鐘)</label>
-            <input style={input} type="number" value={f.duration_min} onChange={e=>set("duration_min",e.target.value)}/></div>
-          <div style={{flex:1}}><label style={label}>人數上限</label>
-            <input style={input} type="number" min={2} value={f.max_players} onChange={e=>set("max_players",e.target.value)}/></div>
+        <label style={label}>時長(分鐘)</label>
+        <input style={input} type="number" value={f.duration_min} onChange={e=>set("duration_min",e.target.value)}/>
+        <label style={label}>人數上限(含你自己,由你決定)</label>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:8}}>
+          {[{n:2,t:"2 人 單打"},{n:4,t:"4 人 雙打"},{n:6,t:"6 人"},{n:8,t:"8 人"}].map(o=>{
+            const on=Number(f.max_players)===o.n;
+            return <button key={o.n} type="button" onClick={()=>set("max_players",o.n)}
+              style={{padding:"8px 14px",borderRadius:999,fontSize:14,fontWeight:700,cursor:"pointer",
+                border:`1.5px solid ${on?C.navy:C.line}`,background:on?C.navy:"#fff",color:on?"#fff":C.txt}}>{o.t}</button>;
+          })}
         </div>
+        <input style={input} type="number" min={2} max={64} value={f.max_players}
+          onChange={e=>set("max_players",e.target.value)} placeholder="或自訂人數(最少 2 人)"/>
+        <p style={{color:C.txt2,fontSize:12.5,margin:"6px 0 0"}}>不限定 4 人:單打填 2、雙打填 4、多人輪打可設更多。</p>
         <label style={label}>賽制</label>
         <select style={input} value={f.game_type} onChange={e=>set("game_type",e.target.value)}>
           <option value="doubles">雙打</option><option value="singles">單打</option><option value="mixed">混雙</option>
