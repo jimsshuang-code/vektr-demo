@@ -6,6 +6,7 @@ import { getMyProfile, myMatchHistory, myPlayPartners } from "@/app/lib/memberDb
 import { MemberShell, LoginPrompt } from "./_components/MemberUI";
 import AvatarUpload from "@/app/components/AvatarUpload";
 import DeleteAccount from "./DeleteAccount";
+import EditProfile from "./EditProfile";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "會員中心" };
@@ -53,11 +54,15 @@ export default async function MemberPage() {
         </div>
       </div>
 
-      {/* 更換頭像 */}
-      <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4">
-        <div className="text-sm font-bold text-[var(--color-text)] mb-3">頭像</div>
-        <AvatarUpload endpoint="/api/v1/member/avatar" initialUrl={profile?.avatar_url} label="上傳頭像" />
-        <p className="text-xs text-[var(--color-text-muted)] mt-2">更換後重新整理頁面即可看到新頭像。</p>
+      {/* 編輯個人資料 */}
+      <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4 space-y-4">
+        <div className="text-sm font-bold text-[var(--color-text)]">編輯個人資料</div>
+        <EditProfile initialName={profile?.name ?? null} />
+        <div>
+          <div className="text-sm font-bold text-[var(--color-text)] mb-2">頭像</div>
+          <AvatarUpload endpoint="/api/v1/member/avatar" initialUrl={profile?.avatar_url} label="上傳頭像" />
+          <p className="text-xs text-[var(--color-text-muted)] mt-2">更換後重新整理頁面即可看到新頭像。</p>
+        </div>
       </div>
 
       {/* 數據 */}
