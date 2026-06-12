@@ -14,7 +14,7 @@ function serialize(obj: unknown) {
 const EDITABLE = [
   "name", "address", "city", "district", "lat", "lng", "type",
   "numCourts", "hourlyRate", "amenities", "photos", "phone",
-  "partnerStatus", "commissionRate",
+  "partnerStatus", "commissionRate", "coverImageUrl", "videoUrl",
 ] as const;
 
 export async function GET(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {

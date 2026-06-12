@@ -9,7 +9,43 @@ type Court = {
   phone: string | null; partnerStatus: string; commissionRate: string | number;
   dataSource: string; isVerified: boolean; status: string; googlePlaceId: string | null;
   rating: string | number | null; ratingCount: number;
+  coverImageUrl: string | null; videoUrl: string | null; photos: string[] | null;
 };
+
+// 前端壓縮圖片(最長邊 1280px、JPEG),回 dataURL。
+function resizeToDataUrl(file: File, maxDim = 1280): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = () => {
+      img.onload = () => {
+        const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+        const w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+        const canvas = document.createElement("canvas");
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return reject(new Error("無法處理圖片"));
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL("image/jpeg", 0.85));
+      };
+      img.onerror = () => reject(new Error("圖片讀取失敗"));
+      img.src = reader.result as string;
+    };
+    reader.onerror = () => reject(new Error("檔案讀取失敗"));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadCourtImage(file: File): Promise<string> {
+  const dataUrl = await resizeToDataUrl(file);
+  const r = await fetch("/api/v1/admin/courts/upload", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ dataUrl }),
+  });
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error ?? "上傳失敗");
+  return j.url as string;
+}
 
 export default function CourtEditPage() {
   const params = useParams();
@@ -26,6 +62,13 @@ export default function CourtEditPage() {
     type: "", numCourts: "", hourlyRate: "", phone: "", partnerStatus: "",
   });
 
+  // 媒體:封面 / 相簿 / 影片
+  const [cover, setCover] = useState<string | null>(null);
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [videoUrl, setVideoUrl] = useState("");
+  const [mediaBusy, setMediaBusy] = useState(false);
+  const [mediaMsg, setMediaMsg] = useState<string | null>(null);
+
   async function load() {
     setLoading(true);
     const r = await fetch(`/api/admin/courts/${id}`);
@@ -40,7 +83,41 @@ export default function CourtEditPage() {
       phone: c.phone ?? "",
       partnerStatus: c.partnerStatus ?? "basic",
     });
+    setCover(c.coverImageUrl ?? null);
+    setPhotos(Array.isArray(c.photos) ? c.photos.filter(Boolean) : []);
+    setVideoUrl(c.videoUrl ?? "");
     setLoading(false);
+  }
+
+  async function saveMedia() {
+    setMediaBusy(true);
+    setMediaMsg(null);
+    const r = await fetch(`/api/admin/courts/${id}`, {
+      method: "PATCH", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ coverImageUrl: cover, photos, videoUrl: videoUrl.trim() || null }),
+    });
+    setMediaBusy(false);
+    if (r.ok) { setMediaMsg("媒體已儲存 ✓"); load(); }
+    else { const j = await r.json().catch(() => ({})); setMediaMsg("儲存失敗：" + (j.error ?? r.status)); }
+  }
+
+  async function onPickCover(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0]; e.target.value = "";
+    if (!f) return;
+    setMediaBusy(true); setMediaMsg(null);
+    try { setCover(await uploadCourtImage(f)); } catch (err) { setMediaMsg(err instanceof Error ? err.message : "上傳失敗"); }
+    setMediaBusy(false);
+  }
+  async function onPickPhotos(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []); e.target.value = "";
+    if (files.length === 0) return;
+    setMediaBusy(true); setMediaMsg(null);
+    try {
+      const urls: string[] = [];
+      for (const f of files.slice(0, 12)) urls.push(await uploadCourtImage(f));
+      setPhotos((p) => [...p, ...urls].slice(0, 12));
+    } catch (err) { setMediaMsg(err instanceof Error ? err.message : "上傳失敗"); }
+    setMediaBusy(false);
   }
 
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [id]);
@@ -132,6 +209,59 @@ export default function CourtEditPage() {
         <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 16 }}>
           <button onClick={save} disabled={saving} style={btnPrimary}>{saving ? "儲存中…" : "儲存"}</button>
           {msg && <span style={{ fontSize: 13, color: msg.startsWith("已儲存") ? "#0d8a66" : "#dc2626" }}>{msg}</span>}
+        </div>
+      </div>
+
+      {/* 媒體:封面 / 相簿 / 影片 */}
+      <h2 style={{ fontSize: 15, fontWeight: 600, margin: "24px 0 12px" }}>封面 / 相簿 / 影片</h2>
+      <div style={card}>
+        {/* 封面 */}
+        <div style={{ padding: "12px 0", borderBottom: "1px solid #eef2f7" }}>
+          <div style={{ color: "#7a8a9e", fontSize: 13, marginBottom: 8 }}>封面圖(詳情頁頂部大圖,16:9)</div>
+          <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+            <div style={{ width: 200, aspectRatio: "16 / 9", borderRadius: 8, overflow: "hidden", background: "#eef2f7", flexShrink: 0 }}>
+              {cover && /* eslint-disable-next-line @next/next/no-img-element */ <img src={cover} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <label style={{ ...btnGhost, display: "inline-block", textAlign: "center" }}>
+                {cover ? "更換封面" : "上傳封面"}
+                <input type="file" accept="image/*" onChange={onPickCover} style={{ display: "none" }} />
+              </label>
+              {cover && <button onClick={() => setCover(null)} style={btnDanger}>移除封面</button>}
+            </div>
+          </div>
+        </div>
+
+        {/* 相簿 */}
+        <div style={{ padding: "12px 0", borderBottom: "1px solid #eef2f7" }}>
+          <div style={{ color: "#7a8a9e", fontSize: 13, marginBottom: 8 }}>場館照片(最多 12 張)</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(90px, 1fr))", gap: 8 }}>
+            {photos.map((p, i) => (
+              <div key={i} style={{ position: "relative", aspectRatio: "1 / 1", borderRadius: 8, overflow: "hidden", background: "#eef2f7" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={p} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <button onClick={() => setPhotos((arr) => arr.filter((_, j) => j !== i))}
+                  style={{ position: "absolute", top: 4, right: 4, width: 22, height: 22, borderRadius: "50%", border: "none", background: "rgba(0,0,0,.6)", color: "#fff", cursor: "pointer", fontSize: 13, lineHeight: "22px" }}>×</button>
+              </div>
+            ))}
+            {photos.length < 12 && (
+              <label style={{ aspectRatio: "1 / 1", borderRadius: 8, border: "1.5px dashed #cbd5e1", display: "flex", alignItems: "center", justifyContent: "center", color: "#7a8a9e", fontSize: 13, cursor: "pointer" }}>
+                ＋ 加照片
+                <input type="file" accept="image/*" multiple onChange={onPickPhotos} style={{ display: "none" }} />
+              </label>
+            )}
+          </div>
+        </div>
+
+        {/* 影片 */}
+        <div style={{ padding: "12px 0" }}>
+          <div style={{ color: "#7a8a9e", fontSize: 13, marginBottom: 8 }}>介紹影片(YouTube 連結,或 .mp4 網址)</div>
+          <input value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} placeholder="https://youtu.be/..." style={input} />
+        </div>
+
+        <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 12 }}>
+          <button onClick={saveMedia} disabled={mediaBusy} style={btnPrimary}>{mediaBusy ? "處理中…" : "儲存媒體"}</button>
+          {mediaMsg && <span style={{ fontSize: 13, color: mediaMsg.includes("✓") ? "#0d8a66" : "#dc2626" }}>{mediaMsg}</span>}
         </div>
       </div>
 

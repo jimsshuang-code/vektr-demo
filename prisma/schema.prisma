@@ -26,6 +26,8 @@ model Court {
   hourlyRate Int?    @map("hourly_rate")
   amenities  Json?
   photos     String[]
+  coverImageUrl String? @map("cover_image_url") @db.VarChar(500)
+  videoUrl      String? @map("video_url") @db.VarChar(500)
 
   phone       String?  @db.VarChar(20)
   rating      Decimal? @db.Decimal(3, 2)

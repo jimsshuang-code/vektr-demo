@@ -78,6 +78,7 @@ export default async function MemberPage() {
         <Tile href="/member/level" title="我的等級" desc="DUPR 等級與說明" />
         <Tile href="/member/friends" title="我的球友" desc="一起打過球的人" />
         <Tile href="/invites" title="邀請好友" desc="推薦碼與邀請成果" />
+        <Tile href="/member/courts" title="場主專區" desc="認領 / 新增球場、上傳照片影片" />
         <Tile href="/member/orders" title="我的訂單" desc="商城訂單(即將開賣)" />
         <Tile href="/member/coaching" title="教練紀錄" desc="課程預約(即將開放)" />
       </div>

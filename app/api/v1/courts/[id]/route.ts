@@ -13,7 +13,8 @@ export async function GET(
     const courtRes = await pool.query(
       `SELECT id, name, address, city, district, lat, lng,
               type, num_courts, hourly_rate, amenities, photos, phone,
-              rating, rating_count, is_verified, partner_status
+              rating, rating_count, is_verified, partner_status,
+              cover_image_url, video_url
        FROM courts WHERE id = $1 AND status = 'active'`,
       [id]
     );

@@ -62,7 +62,10 @@ export default function AdminCourtsPage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>球場管理</h1>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>球場管理</h1>
+        <a href="/admin/courts/claims" style={{ fontSize: 13, padding: "7px 14px", borderRadius: 7, background: "#1e3a8a", color: "#fff", textDecoration: "none", fontWeight: 700 }}>球場審核(認領/上架/檢舉)</a>
+      </div>
       <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
         <input placeholder="搜尋名稱 / 地址" value={q} onChange={(e) => { setPage(1); setQ(e.target.value); }} style={ctrl} />
         <select value={city} onChange={(e) => { setPage(1); setCity(e.target.value); }} style={ctrl}>

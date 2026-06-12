@@ -31,6 +31,13 @@ function buildQuery(sp: URLSearchParams) {
     }
   }
 
+  const q = sp.get('q')?.trim();
+  if (q) {
+    params.push(`%${q}%`);
+    const ph = `$${++p}`;
+    where.push(`(name ILIKE ${ph} OR city ILIKE ${ph} OR address ILIKE ${ph})`);
+  }
+
   const city = sp.get('city');
   const type = sp.get('type');
   const maxRate = sp.get('max_rate');
