@@ -1,30 +1,84 @@
-// app/shop/page.tsx — 商城(預覽,金流未啟用)
-import type { Metadata } from "next";
-import ModulePreview from "@/app/components/ModulePreview";
+// ============================================================================
+// /shop — 商品列表(取代原預覽頁)。Server Component 直讀 DB。
+// ============================================================================
+import Link from "next/link";
+import { listProducts, listCategories, twd } from "@/app/lib/shopDb";
 
-export const metadata: Metadata = {
-  title: "商城",
-  description: "VEKTR 商城:球拍、球類、鞋類、服飾、球袋與配件,以及試打體驗服務。即將開賣。",
+export const dynamic = "force-dynamic";
+export const metadata = {
+  title: "SHOP 商城 | VEKTR",
+  description: "VEKTR 嚴選皮克球裝備:球拍、皮克球、服飾與配件,超商取貨/宅配。",
 };
 
-export default function ShopPage() {
+export default async function ShopPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>;
+}) {
+  const { category } = await searchParams;
+  const [products, categories] = await Promise.all([
+    listProducts(category),
+    listCategories(),
+  ]);
+
   return (
-    <ModulePreview
-      title="VEKTR 商城"
-      titleEn="Shop"
-      badge="即將開賣"
-      lead="嚴選 pickleball 裝備 —— 球拍、球類、鞋類、服飾、球袋與配件,搭配選拍指南與試打體驗,幫你找到最合適的裝備。商城正在籌備中,留下信箱我們開賣第一時間通知你。"
-      categories={["球拍", "球類", "鞋類", "服飾", "球袋", "配件", "試打體驗"]}
-      features={[
-        { h: "選拍指南", d: "依重量、握把、拍面與你的程度,推薦適合的球拍。" },
-        { h: "試打體驗", d: "下單前先試打,找到真正順手的那一支。" },
-        { h: "會員專屬", d: "結合 DUPR 等級與約球紀錄,給你個人化推薦。" },
-        { h: "教練分潤", d: "透過教練推薦購買,支持你的教練。" },
-      ]}
-      links={[
-        { href: "/learn/guide", label: "先看選拍指南", primary: true },
-        { href: "/match", label: "開始約球" },
-      ]}
-    />
+    <main className="mx-auto max-w-6xl px-4 py-8">
+      <div className="flex items-end justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-blue-900">SHOP 商城</h1>
+          <p className="mt-1 text-sm text-gray-500">嚴選皮克球裝備 · 滿 NT$1,500 免運</p>
+        </div>
+        <Link href="/shop/cart" className="rounded-lg bg-blue-900 px-4 py-2 text-sm font-semibold text-lime-300">
+          購物車
+        </Link>
+      </div>
+
+      <div className="mt-6 flex flex-wrap gap-2">
+        <Link
+          href="/shop"
+          className={`rounded-full border px-4 py-1.5 text-sm ${!category ? "border-blue-900 bg-blue-900 text-lime-300" : "border-gray-300 text-gray-600"}`}
+        >
+          全部
+        </Link>
+        {categories.map((c) => (
+          <Link
+            key={c.slug}
+            href={`/shop?category=${c.slug}`}
+            className={`rounded-full border px-4 py-1.5 text-sm ${category === c.slug ? "border-blue-900 bg-blue-900 text-lime-300" : "border-gray-300 text-gray-600"}`}
+          >
+            {c.name}
+          </Link>
+        ))}
+      </div>
+
+      {products.length === 0 ? (
+        <p className="mt-16 text-center text-gray-400">此類別暫無商品,敬請期待。</p>
+      ) : (
+        <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+          {products.map((p) => (
+            <Link
+              key={p.id}
+              href={`/shop/${p.slug}`}
+              className="group rounded-xl border border-gray-200 bg-white p-3 transition hover:shadow-md"
+            >
+              <div className="aspect-square overflow-hidden rounded-lg bg-gray-100">
+                {p.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={p.image} alt={p.name} className="h-full w-full object-cover transition group-hover:scale-105" />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-gray-300">VEKTR</div>
+                )}
+              </div>
+              <h2 className="mt-3 line-clamp-2 text-sm font-semibold text-gray-900">{p.name}</h2>
+              {p.subtitle && <p className="mt-0.5 line-clamp-1 text-xs text-gray-500">{p.subtitle}</p>}
+              <div className="mt-2 flex items-center justify-between">
+                <span className="font-bold text-blue-900">{twd(p.minPriceCents)}</span>
+                {!p.inStock && <span className="text-xs text-red-500">補貨中</span>}
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+    </main>
   );
 }

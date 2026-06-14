@@ -17,8 +17,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <NavItem href="/admin/matches" label="約球檢舉" enabled />
         <NavItem href="/admin/referrals" label="推薦成長" enabled />
         <NavItem href="/admin/marketing" label="行銷管理" enabled />
-        <NavItem href="/admin/products" label="商品管理" enabled={false} />
-        <NavItem href="/admin/orders" label="訂單管理" enabled={false} />
+        <NavItem href="/admin/shop/products" label="商品管理" enabled />
+        <NavItem href="/admin/shop/orders" label="訂單管理" enabled />
         <NavItem href="/admin/permissions" label="權限管理" enabled={false} />
         <NavItem href="/admin/settings" label="系統設定" enabled={false} />
       </aside>
