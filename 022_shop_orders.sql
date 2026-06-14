@@ -1,7 +1,7 @@
 -- ============================================================================
 -- 022_shop_orders.sql — SHOP 訂單/明細/事件軌跡
 -- 整合假設:
---   - users(id) 為球友主鍵;app_current_user_id() / assert_admin() 已存在(005)。
+--   - users(id) 為球友主鍵;app_current_user_id() / shop_is_admin() 已存在(005)。
 --   - 既有 payment_orders(013)留給球場預約訂金;商城獨立 shop_orders。
 -- 狀態機:
 --   pending → paid → shipped → completed
@@ -103,27 +103,27 @@ ALTER TABLE shop_order_events ENABLE ROW LEVEL SECURITY;
 -- 本人讀自己的訂單;admin 全讀寫。寫入一律走 SECURITY DEFINER 函式或 admin。
 DROP POLICY IF EXISTS so_owner_read ON shop_orders;
 CREATE POLICY so_owner_read ON shop_orders FOR SELECT
-  USING (user_id = app_current_user_id() OR assert_admin());
+  USING (user_id = app_current_user_id() OR shop_is_admin());
 DROP POLICY IF EXISTS so_owner_insert ON shop_orders;
 CREATE POLICY so_owner_insert ON shop_orders FOR INSERT
-  WITH CHECK (user_id = app_current_user_id() OR assert_admin());
+  WITH CHECK (user_id = app_current_user_id() OR shop_is_admin());
 DROP POLICY IF EXISTS so_admin_all ON shop_orders;
 CREATE POLICY so_admin_all ON shop_orders FOR UPDATE
-  USING (assert_admin()) WITH CHECK (assert_admin());
+  USING (shop_is_admin()) WITH CHECK (shop_is_admin());
 
 DROP POLICY IF EXISTS soi_owner_read ON shop_order_items;
 CREATE POLICY soi_owner_read ON shop_order_items FOR SELECT
   USING (EXISTS (SELECT 1 FROM shop_orders o WHERE o.id = order_id
-                 AND (o.user_id = app_current_user_id() OR assert_admin())));
+                 AND (o.user_id = app_current_user_id() OR shop_is_admin())));
 DROP POLICY IF EXISTS soi_owner_insert ON shop_order_items;
 CREATE POLICY soi_owner_insert ON shop_order_items FOR INSERT
   WITH CHECK (EXISTS (SELECT 1 FROM shop_orders o WHERE o.id = order_id
-                      AND (o.user_id = app_current_user_id() OR assert_admin())));
+                      AND (o.user_id = app_current_user_id() OR shop_is_admin())));
 
 DROP POLICY IF EXISTS soe_owner_read ON shop_order_events;
 CREATE POLICY soe_owner_read ON shop_order_events FOR SELECT
   USING (EXISTS (SELECT 1 FROM shop_orders o WHERE o.id = order_id
-                 AND (o.user_id = app_current_user_id() OR assert_admin())));
+                 AND (o.user_id = app_current_user_id() OR shop_is_admin())));
 
 -- ============================================================================
 -- 核心交易函式(SECURITY DEFINER):繞過 RLS 的關鍵寫入集中於此,App 不直寫。

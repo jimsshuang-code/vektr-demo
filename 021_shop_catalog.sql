@@ -1,7 +1,7 @@
 -- ============================================================================
 -- 021_shop_catalog.sql — SHOP 商品目錄(類別/商品/規格)
 -- 整合假設:
---   - 005 已建立 app_current_user_id() 與 assert_admin()(A2 模式)。
+--   - 005 已建立 app_current_user_id() 與 shop_is_admin()(A2 模式)。
 --     若函式名不同,僅需改本檔 RLS policy 內呼叫。
 --   - 價格一律整數「分」(cents);台幣顯示 /100。
 -- ============================================================================
@@ -71,6 +71,13 @@ DROP TRIGGER IF EXISTS trg_variants_touch ON product_variants;
 CREATE TRIGGER trg_variants_touch BEFORE UPDATE ON product_variants
   FOR EACH ROW EXECUTE FUNCTION shop_touch_updated_at();
 
+-- ---------- admin 判斷(無參數布林,對齊本專案:RLS 非 FORCE,App 以 owner 連線豁免;
+--            admin 寫入靠程式層 requireAdmin。此函式為未來受限 role 的防線,預設 false) ----------
+CREATE OR REPLACE FUNCTION shop_is_admin() RETURNS boolean
+LANGUAGE sql STABLE AS $$
+  SELECT coalesce(nullif(current_setting('app.is_admin', true), '')::boolean, false)
+$$;
+
 -- ---------- RLS:公開讀 active,寫入僅 admin ----------
 ALTER TABLE product_categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE products           ENABLE ROW LEVEL SECURITY;
@@ -80,23 +87,23 @@ DROP POLICY IF EXISTS cat_read  ON product_categories;
 CREATE POLICY cat_read  ON product_categories FOR SELECT USING (true);
 DROP POLICY IF EXISTS cat_admin ON product_categories;
 CREATE POLICY cat_admin ON product_categories FOR ALL
-  USING (assert_admin()) WITH CHECK (assert_admin());
+  USING (shop_is_admin()) WITH CHECK (shop_is_admin());
 
 DROP POLICY IF EXISTS prod_read ON products;
 CREATE POLICY prod_read ON products FOR SELECT
-  USING (status = 'active' OR assert_admin());
+  USING (status = 'active' OR shop_is_admin());
 DROP POLICY IF EXISTS prod_admin ON products;
 CREATE POLICY prod_admin ON products FOR ALL
-  USING (assert_admin()) WITH CHECK (assert_admin());
+  USING (shop_is_admin()) WITH CHECK (shop_is_admin());
 
 DROP POLICY IF EXISTS var_read ON product_variants;
 CREATE POLICY var_read ON product_variants FOR SELECT
   USING (
-    is_active OR assert_admin()
+    is_active OR shop_is_admin()
   );
 DROP POLICY IF EXISTS var_admin ON product_variants;
 CREATE POLICY var_admin ON product_variants FOR ALL
-  USING (assert_admin()) WITH CHECK (assert_admin());
+  USING (shop_is_admin()) WITH CHECK (shop_is_admin());
 
 -- ---------- 起手類別 ----------
 INSERT INTO product_categories (slug, name, sort) VALUES
