@@ -165,18 +165,23 @@ export function buildCvsMapForm(opts: {
   /** 自訂回傳識別,夾帶暫存 key(ExtraData) */
   extraData?: string;
 }): { action: string; fields: Record<string, string> } {
-  return {
-    action: ECPAY_URLS.logisticsMap,
-    fields: {
-      MerchantID: env("ECPAY_LOGISTICS_MERCHANT_ID"),
-      LogisticsType: "CVS",
-      LogisticsSubType: opts.subType,
-      IsCollection: "N", // 不代收貨款(已線上付款)
-      ServerReplyURL: `${siteUrl()}/api/v1/payments/ecpay/cvs-store`,
-      ExtraData: opts.extraData ?? "",
-      Device: "0",
-    },
+  const fields: Record<string, string> = {
+    MerchantID: env("ECPAY_LOGISTICS_MERCHANT_ID"),
+    LogisticsType: "CVS",
+    LogisticsSubType: opts.subType,
+    IsCollection: "N", // 不代收貨款(已線上付款)
+    ServerReplyURL: `${siteUrl()}/api/v1/payments/ecpay/cvs-store`,
+    ExtraData: opts.extraData ?? "",
+    Device: "0",
   };
+  // 綠界電子地圖需帶 CheckMacValue(物流金鑰、MD5),否則回「找不到加密金鑰」。
+  fields.CheckMacValue = buildCheckMacValue(
+    fields,
+    env("ECPAY_LOGISTICS_HASH_KEY"),
+    env("ECPAY_LOGISTICS_HASH_IV"),
+    "md5",
+  );
+  return { action: ECPAY_URLS.logisticsMap, fields };
 }
 
 /** 建立物流託運單(後台出貨時呼叫;server-to-server) */
